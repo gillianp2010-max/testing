@@ -1,3 +1,4 @@
+<!-- v1.0 -->
 # Vet Practice SQL Tester - Azure VM Installation Guide
 
 ## System Requirements (Azure VM)

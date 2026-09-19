@@ -101,7 +101,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 .demo-overlay.show{display:block}
 .demo-narration{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6a1b9a,#4527a0);color:#fff;padding:16px 24px 16px 20px;border-radius:14px;font-size:.95rem;line-height:1.6;box-shadow:0 8px 32px rgba(106,27,154,.4);max-width:500px;z-index:10000;pointer-events:none;display:none;transition:all .5s cubic-bezier(.4,0,.2,1)}
 .demo-narration.show{display:flex;align-items:flex-start;gap:10px}
-.demo-narration .face{font-size:1.8rem;flex-shrink:0;line-height:1}
+.demo-narration .face{font-size:1.8rem;flex-shrink:0;line-height:1;width:36px;height:36px}
 .demo-narration .text-area{flex:1}
 .demo-narration .step-num{font-size:.72rem;opacity:.7;margin-bottom:3px}
 .demo-narration::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#4527a0}
@@ -261,7 +261,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
           <li><span class='icon'>✅</span><span class='text'><strong>Deploy verification</strong> - secondary read-only check.</span></li>
           <li><span class='icon'>📊</span><span class='text'><strong>Volume testing</strong> - query real data from backend.</span></li>
           <li><span class='icon'>👥</span><span class='text'><strong>Reduces manual error</strong> - one query, all databases.</span></li>
-          <li><span class='icon'>🤖</span><span class='text'><strong>Hands-off testing</strong> - tester verifies independently.</span></li>
+          <li><span class='icon'>🐕</span><span class='text'><strong>Hands-off testing</strong> - tester verifies independently.</span></li>
           <li><span class='icon'>📸</span><span class='text'><strong>Before/after baselines</strong> - save pre-deploy, compare post.</span></li>
           <li><span class='icon'>⚡</span><span class='text'><strong>Concurrent queries</strong> - all 10 in milliseconds.</span></li>
           <li><span class='icon'>🛡️</span><span class='text'><strong>Read-only by design</strong> - SELECT hardcoded.</span></li>
@@ -783,7 +783,7 @@ function showDemoStep(){
   clearHighlight();
   const step = demoSteps[demoStep];
   const nar = document.getElementById('demoNarration');
-  nar.innerHTML = '<div class="face">🤖</div><div class="text-area"><div class="step-num">Step ' + (demoStep+1) + ' of ' + demoSteps.length + '</div>' + step.text + '</div>';
+  nar.innerHTML = '<div class="face"><svg viewBox="0 0 64 64" width="36" height="36"><ellipse cx="15" cy="16" rx="7" ry="9" fill="#8b6914" transform="rotate(-25 15 16)"/><ellipse cx="49" cy="16" rx="7" ry="9" fill="#8b6914" transform="rotate(25 49 16)"/><ellipse cx="32" cy="31" rx="21" ry="19" fill="#c4956a"/><path d="M14 23 Q32 19 50 23" stroke="#5a3a1a" stroke-width="2.5" fill="none" opacity="0.55"/><path d="M11 29 Q32 25 53 29" stroke="#5a3a1a" stroke-width="2" fill="none" opacity="0.55"/><path d="M14 35 Q32 31 50 35" stroke="#5a3a1a" stroke-width="2" fill="none" opacity="0.45"/><path d="M16 41 Q32 37 48 41" stroke="#5a3a1a" stroke-width="1.5" fill="none" opacity="0.4"/><ellipse cx="32" cy="45" rx="11" ry="8" fill="#dab07a"/><circle cx="22" cy="29" r="3.5" fill="#1a1a1a"/><circle cx="42" cy="29" r="3.5" fill="#1a1a1a"/><circle cx="23" cy="28" r="1" fill="#fff"/><circle cx="43" cy="28" r="1" fill="#fff"/><ellipse cx="32" cy="43" rx="4" ry="3" fill="#1a1a1a"/><path d="M27 50 Q32 54 37 50" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div><div class="text-area"><div class="step-num">Step ' + (demoStep+1) + ' of ' + demoSteps.length + '</div>' + step.text + '</div>';
   nar.classList.add('show');
   const highlightActions = ['typeQuery1','clickRun','scrollResults','expandDemo','collapseDemo','saveBaselineDemo','typeQuery2','clickRun2','compareDemo','scrollDiff','typeQuery3','clickRun3','saveBaseline2Demo','clickRun4','compareDemo2','scrollDiff2','pointDbs','tryDelete'];
   if(highlightActions.includes(step.action) && step.target){

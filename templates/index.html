@@ -596,8 +596,8 @@ function renderDiff(base, curr){
       const currSet = new Set(c.rows.map(r => JSON.stringify(r)));
       const addedRows = c.rows.filter(r => !baseSet.has(JSON.stringify(r)));
       const removedRows = b.rows.filter(r => !currSet.has(JSON.stringify(r)));
-      // When row and column counts match, do row-by-row value comparison
-      if(b.rows.length === c.rows.length && b.columns.length === c.columns.length){
+      // When row and column counts match AND same query, do row-by-row value comparison
+      if(b.rows.length === c.rows.length && b.columns.length === c.columns.length && base.query === curr.query){
         let changeTableHTML = '';
         for(let i=0; i<b.rows.length; i++){
           const br = b.rows[i], cr = c.rows[i];

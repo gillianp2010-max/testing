@@ -692,9 +692,10 @@ function renderDiff(base, curr){
   if(totalIdentical > 0) html += '<span class=diff-badge-add>' + totalIdentical + ' identical</span> ';
   if(totalValueChanged > 0) html += '<span class=diff-badge-chg>' + totalValueChanged + ' rows with data changes</span> ';
   if(totalAdded > 0) html += '<span class=diff-badge-add>' + totalAdded + ' rows added</span> ';
-  if(totalRemoved > 0) html += '<span class=diff-badge-rem>' + totalRemoved + ' rows changed/removed</span> ';
+  if(totalRemoved > 0) html += '<span class=diff-badge-rem>' + totalRemoved + ' rows removed</span> ';
   if(totalChanged > 0) html += '<span class=diff-badge-chg>' + totalChanged + ' databases with changes</span> ';
-  if(totalChanged === 0) html += '<span class=diff-badge-add>NO CHANGES - Deploy verified!</span>';
+  if(totalChanged === 0) html += '<span class=diff-badge-add>✓ No differences found — data matches baseline.</span>';
+  html += '<br><span class=meta>Baseline query: <code>' + base.query + '</code><br>Current query: <code>' + curr.query + '</code>' + (base.query !== curr.query ? ' — queries differ, comparing by row sets' : '') + '</span>';
   html += '</div></div>';
   diffArea.innerHTML = html;
   diffArea.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -765,6 +766,7 @@ const demoSteps = [
   {text:'Results appear for each database as collapsed panels — just the practice name, row count, and execution time. All queried concurrently.', delay:9000, action:'scrollResults', target:'#resultsContainer'},
   {text:'Watch — I will click this panel to expand it and see the actual data...', delay:6000, action:'expandDemo', target:'.result-card'},
   {text:'Now you can see the full data table. Click again to collapse it back — this keeps the view clean when you have many databases.', delay:8000, action:'collapseDemo', target:'.result-card'},
+  {text:'Results can be downloaded as CSV files — click Download All to get every database at once, or use the download button on each individual panel.', delay:7000, action:'pointDownload', target:'.results-header'},
   {text:'You can also use this as a deploy verification tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
   {text:'Baseline saved. Now I will run a modified query — this simulates what you would see after a deploy where the data has changed.', delay:9000, action:'typeQuery2', target:'#queryInput'},
   {text:'Running the modified query now — weight_kg values are incremented to simulate a data change after deploy.', delay:7000, action:'clickRun2', target:'.run-btn'},
@@ -796,7 +798,7 @@ function showDemoStep(){
   const nar = document.getElementById('demoNarration');
   nar.innerHTML = '<div class="face"><svg viewBox="0 0 64 64" width="36" height="36"><ellipse cx="15" cy="16" rx="7" ry="9" fill="#8b6914" transform="rotate(-25 15 16)"/><ellipse cx="49" cy="16" rx="7" ry="9" fill="#8b6914" transform="rotate(25 49 16)"/><ellipse cx="32" cy="31" rx="21" ry="19" fill="#c4956a"/><path d="M14 23 Q32 19 50 23" stroke="#5a3a1a" stroke-width="2.5" fill="none" opacity="0.55"/><path d="M11 29 Q32 25 53 29" stroke="#5a3a1a" stroke-width="2" fill="none" opacity="0.55"/><path d="M14 35 Q32 31 50 35" stroke="#5a3a1a" stroke-width="2" fill="none" opacity="0.45"/><path d="M16 41 Q32 37 48 41" stroke="#5a3a1a" stroke-width="1.5" fill="none" opacity="0.4"/><ellipse cx="32" cy="45" rx="11" ry="8" fill="#dab07a"/><circle cx="22" cy="29" r="3.5" fill="#1a1a1a"/><circle cx="42" cy="29" r="3.5" fill="#1a1a1a"/><circle cx="23" cy="28" r="1" fill="#fff"/><circle cx="43" cy="28" r="1" fill="#fff"/><ellipse cx="32" cy="43" rx="4" ry="3" fill="#1a1a1a"/><path d="M27 50 Q32 54 37 50" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div><div class="text-area"><div class="step-num">Step ' + (demoStep+1) + ' of ' + demoSteps.length + '</div>' + step.text + '</div>';
   nar.classList.add('show');
-  const highlightActions = ['typeQuery1','clickRun','scrollResults','expandDemo','collapseDemo','saveBaselineDemo','typeQuery2','clickRun2','compareDemo','scrollDiff','typeQuery3','clickRun3','saveBaseline2Demo','clickRun4','compareDemo2','scrollDiff2','pointDbs','tryDelete'];
+  const highlightActions = ['typeQuery1','clickRun','scrollResults','expandDemo','collapseDemo','pointDownload','saveBaselineDemo','typeQuery2','clickRun2','compareDemo','scrollDiff','typeQuery3','clickRun3','saveBaseline2Demo','clickRun4','compareDemo2','scrollDiff2','pointDbs','tryDelete'];
   if(highlightActions.includes(step.action) && step.target){
     const el = document.querySelector(step.target);
     if(el){
@@ -875,6 +877,9 @@ function executeDemoAction(action){
           }, 2000);
         }
       }, 500);
+      break;
+    case 'pointDownload':
+      highlightElement('.results-header', 'Download results as CSV');
       break;
     case 'saveBaselineDemo':
       highlightElement('#saveBaselineBtn', 'Test after deploy');

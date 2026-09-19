@@ -324,6 +324,15 @@ Tip: Copy the shortcut to:
    to auto-launch when you log in.</p>
         <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Production Mode (SQL Server on VM)</p>
         <p style='font-size:.72rem;color:#555'>Edit run_query_on_db() in app.py to connect to your real SQL Server database. Use pyodbc with ApplicationIntent=ReadOnly in the connection string. Data stays on the VM — designed to keep everything local.</p>
+         <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Email Results (SMTP)</p>
+         <p style='font-size:.72rem;color:#555;font-family:monospace;white-space:pre;line-height:1.8'>Set these environment variables in start.bat:
+   set SMTP_HOST=smtp.yourprovider.com
+   set SMTP_PORT=587
+   set SMTP_USER=your@email.com
+   set SMTP_PASS=yourpassword
+   set SMTP_FROM=your@email.com
+
+Users can then click Email Results to send CSV directly.</p>
       </div>
     </div>
   </div>
@@ -349,6 +358,7 @@ Tip: Copy the shortcut to:
         <div class='results-summary' id='resultsSummary'></div>
         <div style='display:flex;gap:6px;flex-wrap:wrap;align-items:center'>
           <button class='btn btn-success btn-sm' onclick='downloadAll()'>Download All</button>
+          <button class='btn btn-success btn-sm' onclick='emailResults()'>📧 Email Results</button>
           <button class='btn btn-secondary btn-sm' id='saveBaselineBtn' onclick='saveBaseline()'>Save Baseline</button>
           <select id='baselineSelect' onchange='loadBaseline()'><option value=''>Load Baseline...</option></select>
           <button class='btn btn-secondary btn-sm' id='compareBaselineBtn' onclick='compareWithBaseline()' style='display:none'>Compare</button>
@@ -506,6 +516,18 @@ function downloadAll(){
   });
   if(!hasData){alert('No data to download.');return}
   triggerDownload(csv, 'all_databases_results.csv');
+}
+
+async function emailResults(){
+  if(!lastResults){alert('Run a query first.');return}
+  const emailAddr = prompt('Enter email address to send results to:');
+  if(!emailAddr) return;
+  try{
+    const resp = await fetch('/email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:emailAddr, data:lastResults})});
+    const result = await resp.json();
+    if(result.error){alert('Email failed: ' + result.error);return}
+    alert('Results emailed to ' + emailAddr + '\n' + lastResults.total_databases + ' databases, ' + lastResults.total_rows + ' rows.');
+  }catch(e){alert('Email failed: ' + e.message)}
 }
 
 function triggerDownload(content, filename){
@@ -766,7 +788,7 @@ const demoSteps = [
   {text:'Results appear for each database as collapsed panels — just the practice name, row count, and execution time. All queried concurrently.', delay:9000, action:'scrollResults', target:'#resultsContainer'},
   {text:'Watch — I will click this panel to expand it and see the actual data...', delay:6000, action:'expandDemo', target:'.result-card'},
   {text:'Now you can see the full data table. Click again to collapse it back — this keeps the view clean when you have many databases.', delay:8000, action:'collapseDemo', target:'.result-card'},
-  {text:'Results can be downloaded as CSV files — click Download All to get every database at once, or use the download button on each individual panel.', delay:7000, action:'pointDownload', target:'.results-header'},
+  {text:'Results can be downloaded as CSV files — click Download All to get every database at once, or use the download button on each individual panel. You can also email results directly to yourself or your team.', delay:8000, action:'pointDownload', target:'.results-header'},
   {text:'You can also use this as a deploy verification tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
   {text:'Baseline saved. Now I will run a modified query — this simulates what you would see after a deploy where the data has changed.', delay:9000, action:'typeQuery2', target:'#queryInput'},
   {text:'Running the modified query now — weight_kg values are incremented to simulate a data change after deploy.', delay:7000, action:'clickRun2', target:'.run-btn'},

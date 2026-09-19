@@ -3,6 +3,11 @@ import sqlite3
 import re
 import time
 import json
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import Flask, render_template, request, jsonify
 from data_generator import PRACTICES, SCHEMA_INFO, generate_all_databases
@@ -243,6 +248,78 @@ def delete_all_baselines():
                 os.remove(fp)
                 count += 1
     return jsonify({"status": "deleted", "count": count, "freed_bytes": freed_bytes})
+
+
+# ---- Email results ----
+
+SMTP_HOST = os.environ.get("SMTP_HOST", "")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_PASS = os.environ.get("SMTP_PASS", "")
+SMTP_FROM = os.environ.get("SMTP_FROM", "")
+
+
+def _results_to_csv(data):
+    lines = []
+    for r in data.get("results", []):
+        if r.get("error") or not r.get("columns"):
+            continue
+        lines.append(f"# {r['practice_name']} ({r['practice_id']})")
+        lines.append(",".join(r["columns"]))
+        for row in r.get("rows", []):
+            vals = []
+            for c in r["columns"]:
+                v = row.get(c)
+                if v is None:
+                    vals.append("")
+                else:
+                    s = str(v)
+                    if "," in s or '"' in s or "\n" in s:
+                        s = '"' + s.replace('"', '""') + '"'
+                    vals.append(s)
+            lines.append(",".join(vals))
+        lines.append("")
+    return "\n".join(lines)
+
+
+@app.route("/email", methods=["POST"])
+def email_results():
+    body = request.get_json(silent=True) or {}
+    to_addr = body.get("email", "").strip()
+    data = body.get("data")
+    if not to_addr or not data:
+        return jsonify({"error": "Provide email address and data."}), 400
+    if not SMTP_HOST or not SMTP_USER:
+        return jsonify({
+            "error": "Email not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS, and SMTP_FROM environment variables on the VM."
+        }), 500
+    try:
+        csv_content = _results_to_csv(data)
+        msg = MIMEMultipart()
+        msg["From"] = SMTP_FROM or SMTP_USER
+        msg["To"] = to_addr
+        msg["Subject"] = f"Vet SQL Tester Results — {data.get('total_databases', '?')} databases, {data.get('total_rows', '?')} rows"
+        body_text = (
+            f"Query: {data.get('query', '')}\n"
+            f"Databases: {data.get('total_databases', 0)}\n"
+            f"Total rows: {data.get('total_rows', 0)}\n\n"
+            f"Results attached as CSV."
+        )
+        msg.attach(MIMEText(body_text, "plain"))
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(csv_content.encode("utf-8"))
+        encoders.encode_base64(part)
+        part.add_header("Content-Disposition", 'attachment; filename="query_results.csv"')
+        msg.attach(part)
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(SMTP_FROM or SMTP_USER, [to_addr], msg.as_string())
+        return jsonify({"status": "sent", "to": to_addr})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # Generate databases before the first request
 init_databases()
 

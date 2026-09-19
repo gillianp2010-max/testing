@@ -831,7 +831,19 @@ function executeDemoAction(action){
       break;
     case 'clickRun':
       highlightElement('.section-box-db', 'Query runs on all selected databases');
-      setTimeout(() => runQuery(), 2500);
+      setTimeout(() => {
+        const btn = document.querySelector('.run-btn');
+        if(btn){
+          const rect = btn.getBoundingClientRect();
+          const hl = document.getElementById('demoHighlight');
+          hl.innerHTML = '<div class="demo-highlight-label">Click Run Query</div>';
+          hl.style.left = rect.left - 4 + 'px';
+          hl.style.top = rect.top - 4 + 'px';
+          hl.style.width = rect.width + 8 + 'px';
+          hl.style.height = rect.height + 8 + 'px';
+        }
+        setTimeout(() => runQuery(), 800);
+      }, 2000);
       break;
     case 'scrollResults':
       setTimeout(() => {

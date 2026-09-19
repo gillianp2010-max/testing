@@ -383,6 +383,7 @@ let lastResults = null;
 function enterApp(startDemo){
   var landing=document.getElementById('landingPage');
   landing.classList.add('hide');
+  clearAll();
   setTimeout(function(){
     landing.style.display='none';
     document.getElementById('mainApp').style.display='block';

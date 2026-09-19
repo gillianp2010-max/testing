@@ -756,6 +756,12 @@ const demoSteps = [
   {text:'Running the modified query now — weight_kg values are incremented to simulate a data change after deploy.', delay:7000, action:'clickRun2', target:'.run-btn'},
   {text:'Now load the baseline and compare to see the differences.', delay:8000, action:'compareDemo', target:'.results-header'},
   {text:'The comparison highlights value changes per database — so you can confirm your deploy worked, or catch if you missed a database.', delay:9000, action:'scrollDiff', target:'#diffArea'},
+  {text:'Now let me show a different scenario — rows added after deploy. First, I will run a query with LIMIT 5 to create a smaller baseline.', delay:7000, action:'typeQuery3', target:'#queryInput'},
+  {text:'Running the before-deploy query with 5 rows...', delay:6000, action:'clickRun3', target:'.run-btn'},
+  {text:'Save this as a new baseline. Then I will run the after-deploy query with LIMIT 8 — simulating 3 rows added.', delay:8000, action:'saveBaseline2Demo', target:'#saveBaselineBtn'},
+  {text:'Running the after-deploy query with 8 rows — 3 more than the baseline...', delay:6000, action:'clickRun4', target:'.run-btn'},
+  {text:'Now compare — you will see the 3 added rows highlighted in green with their full data.', delay:8000, action:'compareDemo2', target:'.results-header'},
+  {text:'The comparison shows the 3 actual added rows — proof that the tool catches row additions, not just value changes.', delay:9000, action:'scrollDiff2', target:'#diffArea'},
   {text:'You can also select which databases to target — query all of them, just one, or a specific subset. Useful when you only deployed to certain practices and want to verify just those.', delay:6000, action:'pointDbs', target:'.section-box-db'},
   {text:'Let me prove it is read-only. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
   {text:'BLOCKED. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode. No data can be modified through this tool.', delay:10000, action:null, target:'#security-card'},
@@ -776,7 +782,7 @@ function showDemoStep(){
   const nar = document.getElementById('demoNarration');
   nar.innerHTML = '<div class="face">🤖</div><div class="text-area"><div class="step-num">Step ' + (demoStep+1) + ' of ' + demoSteps.length + '</div>' + step.text + '</div>';
   nar.classList.add('show');
-  const highlightActions = ['typeQuery1','clickRun','scrollResults','expandDemo','collapseDemo','saveBaselineDemo','typeQuery2','clickRun2','compareDemo','scrollDiff','pointDbs','tryDelete'];
+  const highlightActions = ['typeQuery1','clickRun','scrollResults','expandDemo','collapseDemo','saveBaselineDemo','typeQuery2','clickRun2','compareDemo','scrollDiff','typeQuery3','clickRun3','saveBaseline2Demo','clickRun4','compareDemo2','scrollDiff2','pointDbs','tryDelete'];
   if(highlightActions.includes(step.action) && step.target){
     const el = document.querySelector(step.target);
     if(el){
@@ -888,6 +894,59 @@ function executeDemoAction(action){
         const da = document.getElementById('diffArea');
         if(da) da.scrollIntoView({behavior:'smooth', block:'start'});
         highlightElement('#diffArea', 'Comparison results');
+      }, 500);
+      break;
+    case 'typeQuery3':
+      document.getElementById('queryInput').value = '';
+      document.getElementById('queryInput').focus();
+      typeText('queryInput', '* FROM patients LIMIT 5', 30);
+      highlightElement('#queryInput', 'Before query (LIMIT 5)');
+      break;
+    case 'clickRun3':
+      highlightElement('.run-btn', 'Run before query');
+      setTimeout(() => runQuery(), 500);
+      break;
+    case 'saveBaseline2Demo':
+      highlightElement('#saveBaselineBtn', 'Save second baseline');
+      setTimeout(async () => {
+        if(!lastResults) return;
+        try{
+          const resp = await fetch('/baseline/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'demo_baseline_2', data:lastResults})});
+          const result = await resp.json();
+          if(!result.error){refreshBaselineList();}
+        }catch(e){}
+        document.getElementById('queryInput').value = '';
+        document.getElementById('queryInput').focus();
+        typeText('queryInput', '* FROM patients LIMIT 8', 30);
+      }, 2000);
+      break;
+    case 'clickRun4':
+      highlightElement('.run-btn', 'Run after query (LIMIT 8)');
+      setTimeout(() => runQuery(), 500);
+      break;
+    case 'compareDemo2':
+      highlightElement('.results-header', 'Load Baseline then Compare');
+      setTimeout(async () => {
+        const sel = document.getElementById('baselineSelect');
+        for(let i=0; i<sel.options.length; i++){
+          if(sel.options[i].value === 'demo_baseline_2'){sel.selectedIndex = i;break;}
+        }
+        if(!sel.value) return;
+        try{
+          const resp = await fetch('/baseline/load?name=' + encodeURIComponent(sel.value));
+          const result = await resp.json();
+          if(result.error) return;
+          baseline = result.data;
+          document.getElementById('compareBaselineBtn').style.display='inline-block';
+          if(lastResults){renderDiff(baseline, lastResults);}
+        }catch(e){}
+      }, 2000);
+      break;
+    case 'scrollDiff2':
+      setTimeout(() => {
+        const da = document.getElementById('diffArea');
+        if(da) da.scrollIntoView({behavior:'smooth', block:'start'});
+        highlightElement('#diffArea', 'Added rows comparison');
       }, 500);
       break;
     case 'pointDbs':

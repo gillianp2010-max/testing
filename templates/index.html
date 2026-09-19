@@ -650,26 +650,19 @@ function renderDiff(base, curr){
           badges += '<span class=diff-badge-add>IDENTICAL</span>';
         }
       } else if(b.columns.length === c.columns.length) {
-        // Row counts differ but columns match — match by primary key (first column)
-        const pkCol = b.columns[0];
-        const baseMap = new Map();
-        b.rows.forEach(r => baseMap.set(r[pkCol], r));
-        const currMap = new Map();
-        c.rows.forEach(r => currMap.set(r[pkCol], r));
+        // Row counts differ but columns match — compare overlapping rows position by position
+        const minLen = Math.min(b.rows.length, c.rows.length);
         let changedMatched = [];
-        let addedRows = [];
-        let removedRows = [];
-        c.rows.forEach(cr => {
-          const br = baseMap.get(cr[pkCol]);
-          if(br){
-            let hasChange = false;
-            for(let ci=0; ci<b.columns.length; ci++){
-              if(String(br[b.columns[ci]]) !== String(cr[c.columns[ci]])){hasChange = true; break;}
-            }
-            if(hasChange) changedMatched.push({base: br, curr: cr});
-          } else { addedRows.push(cr); }
-        });
-        b.rows.forEach(br => { if(!currMap.has(br[pkCol])) removedRows.push(br); });
+        for(let i=0; i<minLen; i++){
+          const br = b.rows[i], cr = c.rows[i];
+          let hasChange = false;
+          for(let ci=0; ci<b.columns.length; ci++){
+            if(String(br[b.columns[ci]]) !== String(cr[c.columns[ci]])){hasChange = true; break;}
+          }
+          if(hasChange) changedMatched.push({base: br, curr: cr, idx: i});
+        }
+        let addedRows = c.rows.slice(minLen);
+        let removedRows = b.rows.slice(minLen);
         added = addedRows.length;
         removed = removedRows.length;
         valueChanged = changedMatched.length;
@@ -684,8 +677,8 @@ function renderDiff(base, curr){
           // Show changed rows (old struck through, new in green)
           if(changedMatched.length > 0){
             let changeTableHTML = '';
-            changedMatched.forEach((m, idx) => {
-              let rowHTML = '<tr><td style=color:#999>' + (idx+1) + '</td>';
+            changedMatched.forEach((m) => {
+              let rowHTML = '<tr><td style=color:#999>' + (m.idx+1) + '</td>';
               for(let ci=0; ci<b.columns.length; ci++){
                 const bCol = b.columns[ci], cCol = c.columns[ci];
                 const bVal = m.base[bCol], cVal = m.curr[cCol];
@@ -791,7 +784,7 @@ function renderDiff(base, curr){
       }
     }
     totalAdded += added; totalRemoved += removed;
-    html += '<div style="margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:6px"><strong>' + b.practice_name + '</strong> (' + b.city + ', ' + b.state + ') ' + badges + '<br><span class=meta>Baseline: ' + b.row_count + ' rows | Current: ' + c.row_count + ' rows</span>' + detail + '</div>';
+    html += '<div style="margin-bottom:10px;border:1px solid var(--border);border-radius:6px;overflow:hidden"><div style="padding:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="var d=this.nextElementSibling;d.style.display=d.style.display==='none'?'block':'none';this.querySelector('.arrow').textContent=d.style.display==='none'?'▼':'▲'"><div><strong>' + b.practice_name + '</strong> (' + b.city + ', ' + b.state + ') ' + badges + '<br><span class=meta>Baseline: ' + b.row_count + ' rows | Current: ' + c.row_count + ' rows</span></div><span class="arrow" style="font-size:1.1rem;color:#999">▼</span></div><div style="display:none;padding:10px;border-top:1px solid var(--border)">' + detail + '</div></div>';
   });
   curr.results.forEach(c => {
     if(!base.results.find(x => x.practice_id === c.practice_id)){

@@ -149,7 +149,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <div class='landing-page' id='landingPage'>
   <div class='landing-icon'>🐾</div>
   <h1>Vet Practice SQL Tester</h1>
-  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys independently, compare baselines, and keep data on the VM.</p>
+  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys independently, compare baselines, and keep data on the VM. This demo uses dummy data — the real app connects to your live databases.</p>
   <div class='landing-buttons'>
     <button class='btn-landing-demo' onclick='enterApp(true)'>▶ Start Demo Tour</button>
     <button class='btn-landing-enter' onclick='enterApp(false)'>Enter Tool</button>
@@ -256,8 +256,8 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
       <div class='collapsible-header' onclick='toggleCard("why-card")'>Why This Tool <span class='toggle-icon'>&#9660;</span></div>
       <div class='collapsible-body'>
         <ul class='benefits-list'>
-          <li><span class='icon'>🔒</span><span class='text'><strong>Data stays on VM</strong> - runs locally, no cloud upload.</span></li>
-          <li><span class='icon'>🐍</span><span class='text'><strong>Python, not AI</strong> - no AI services, no third parties.</span></li>
+          <li><span class='icon'>🔒</span><span class='text'><strong>Data stays on VM</strong> - designed to run locally, keeping data on the VM.</span></li>
+          <li><span class='icon'>🐍</span><span class='text'><strong>Python, not AI</strong> - no AI services involved.</span></li>
           <li><span class='icon'>✅</span><span class='text'><strong>Deploy verification</strong> - secondary read-only check.</span></li>
           <li><span class='icon'>📊</span><span class='text'><strong>Volume testing</strong> - query real data from backend.</span></li>
           <li><span class='icon'>👥</span><span class='text'><strong>Reduces manual error</strong> - one query, all databases.</span></li>
@@ -319,7 +319,7 @@ Tip: Copy the shortcut to:
    Start Menu\Programs\Startup\
    to auto-launch when you log in.</p>
         <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Production Mode (SQL Server on VM)</p>
-        <p style='font-size:.72rem;color:#555'>Edit run_query_on_db() in app.py to connect to your real SQL Server database. Use pyodbc with ApplicationIntent=ReadOnly in the connection string. Data stays on the VM — no cloud upload, no AI services. Everything stays in folders on C:.</p>
+        <p style='font-size:.72rem;color:#555'>Edit run_query_on_db() in app.py to connect to your real SQL Server database. Use pyodbc with ApplicationIntent=ReadOnly in the connection string. Data stays on the VM — designed to keep everything local.</p>
       </div>
     </div>
   </div>
@@ -755,7 +755,7 @@ let demoTimer = null;
 let demoStep = 0;
 const APP_URL = window.location.origin;
 const demoSteps = [
-  {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across multiple veterinary practice databases simultaneously — all from a single screen. Let me walk you through how it works.', delay:8000, target:null},
+  {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across multiple veterinary practice databases simultaneously — all from a single screen. The data and practices shown here are dummy data for demonstration — the real app connects to your live databases. Let me walk you through how it works.', delay:10000, target:null},
   {text:'Type your query here. SELECT is already provided. Let me run a query to show you.', delay:7000, action:'typeQuery1', target:'#queryInput'},
   {text:'The query runs against all selected databases at once. Click Run to send it — results appear in milliseconds.', delay:8000, action:'clickRun', target:'.section-box-db'},
   {text:'Results appear for each database as collapsed panels — just the practice name, row count, and execution time. All queried concurrently.', delay:9000, action:'scrollResults', target:'#resultsContainer'},
@@ -771,11 +771,11 @@ const demoSteps = [
   {text:'Save this as a new baseline. Then I will run the after-deploy query with LIMIT 8 — simulating 3 rows added.', delay:8000, action:'saveBaseline2Demo', target:'#saveBaselineBtn'},
   {text:'Running the after-deploy query with 8 rows — 3 more than the baseline...', delay:6000, action:'clickRun4', target:'.run-btn'},
   {text:'Now compare — you will see the 3 added rows highlighted in green with their full data.', delay:8000, action:'compareDemo2', target:'.results-header'},
-  {text:'The comparison shows the 3 actual added rows — proof that the tool catches row additions, not just value changes.', delay:9000, action:'scrollDiff2', target:'#diffArea'},
+  {text:'The comparison shows the 3 actual added rows — the tool catches row differences including added or deleted rows, not just value changes.', delay:9000, action:'scrollDiff2', target:'#diffArea'},
   {text:'You can also select which databases to target — query all of them, just one, or a specific subset. Useful when you only deployed to certain practices and want to verify just those.', delay:6000, action:'pointDbs', target:'.section-box-db'},
   {text:'Let me show you the read-only protection in action. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
   {text:'Blocked. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode — designed to keep your data safe.', delay:10000, action:null, target:'#security-card'},
-  {text:'Data stays on the VM. Pure Python, no AI services, no third-party data processing — keeping things simple and secure by design.', delay:8000, action:null, target:'#security-card'},
+  {text:'Data stays on the VM. Pure Python, no AI services — keeping things simple and secure by design.', delay:8000, action:null, target:'#security-card'},
   {text:'The key use case: a tester verifies a deploy from a completely separate session. After a developer commits a change, the tester launches the app on their VM, loads the baseline, runs the same query, and compares — all independently.', delay:12000, action:null, target:'#saveBaselineBtn'},
   {text:'Here is the link — feel free to try it yourself. Thanks for watching!', delay:0, action:'showFinal', target:null}
 ];
@@ -1067,7 +1067,7 @@ function positionNarration(selector){
 function showDemoFinal(){
   const f = document.getElementById('demoFinal');
   f.innerHTML = '<h2>🎯 Demo Complete</h2>' +
-    '<p>This tool runs SELECT queries across 10 vet practice databases at once, saves baselines before deploying, and compares after to verify changes landed. Data stays on the VM — pure Python, no AI.</p>' +
+    '<p>This tool runs SELECT queries across 10 vet practice databases at once, saves baselines before deploying, and compares after to verify changes landed. Data stays on the VM — pure Python, designed to keep things simple.</p>' +
     '<button class="btn btn-primary" style="width:100%;margin-bottom:16px;padding:12px;font-size:1rem" onclick="stopDemoTour()">✕ Exit Demo</button>' +
     '<div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px">' +
     '<p style="font-size:.82rem;color:#666;margin-bottom:8px">Share this link with your team:</p>' +

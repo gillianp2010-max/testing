@@ -66,12 +66,12 @@ def validate_query(user_input: str):
         if re.search(r"\b" + kw + r"\b", upper):
             return (
                 False,
-                f"BLOCKED — Forbidden keyword '{kw}' detected.\n\n"
+                f"Blocked — '{kw}' is not permitted in this tool.\n\n"
                 "Three layers of read-only protection:\n"
-                "1. SELECT is hardcoded — the app prepends it, you cannot change it.\n"
+                "1. SELECT is hardcoded — the app prepends it for you.\n"
                 f"2. Keyword filter — '{kw}' is in the blocked list (20+ keywords including INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, and more).\n"
-                "3. Databases open in read-only mode at the OS level — even if a write somehow bypassed layers 1 and 2, SQLite would reject it.\n\n"
-                "No data can be modified, deleted, or inserted through this tool.",
+                "3. Databases open in read-only mode — designed to prevent writes at the database level too.\n\n"
+                "This tool is designed to keep data safe — modifications, deletions, and insertions are not supported.",
             )
     return True, full_query
 

@@ -149,7 +149,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <div class='landing-page' id='landingPage'>
   <div class='landing-icon'>🐾</div>
   <h1>Vet Practice SQL Tester</h1>
-  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys independently from a separate session, compare baselines, and keep data secure on-VM.</p>
+  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys independently, compare baselines, and keep data on the VM.</p>
   <div class='landing-buttons'>
     <button class='btn-landing-demo' onclick='enterApp(true)'>▶ Start Demo Tour</button>
     <button class='btn-landing-enter' onclick='enterApp(false)'>Enter Tool</button>
@@ -159,7 +159,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
     <span class='feature-chip'>🔒 Read-only by design</span>
     <span class='feature-chip'>⚡ Concurrent queries</span>
     <span class='feature-chip'>📸 Before/after baselines</span>
-    <span class='feature-chip'>🐍 Pure Python, no AI</span>
+    <span class='feature-chip'>🐍 Pure Python, no AI services</span>
   </div>
 </div>
 
@@ -178,33 +178,6 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
     <button class='btn btn-primary run-btn' id='runBtn' onclick='runQuery()'>Run Query</button>
     <button class='btn btn-secondary' onclick='clearAll()'>Clear</button>
   </div>
-  </div>
-
-  <div class='collapsible section-box' id='examples-card'>
-    <div class='collapsible-header' onclick='toggleCard("examples-card")'>💡 Example Queries <span class='toggle-icon'>&#9660;</span></div>
-    <div class='collapsible-body'>
-      <div class='examples'>
-        <button class='example-btn' onclick='setExample(this)'>* FROM patients LIMIT 10</button>
-        <button class='example-btn' onclick='setExample(this)'>name, species FROM patients WHERE species='Dog' LIMIT 20</button>
-        <button class='example-btn' onclick='setExample(this)'>COUNT(*) AS total FROM appointments GROUP BY status</button>
-        <button class='example-btn' onclick='setExample(this)'>v.first_name, v.specialization FROM veterinarians v</button>
-        <button class='example-btn' onclick='setExample(this)'>p.name, a.reason FROM patients p JOIN appointments a ON p.patient_id=a.patient_id LIMIT 15</button>
-        <button class='example-btn' onclick='setExample(this)'>i.total_amount, i.payment_status FROM invoices i WHERE i.payment_status='Overdue'</button>
-      </div>
-    </div>
-  </div>
-
-  <div class='collapsible section-box-demo' id='deploy-card'>
-    <div class='collapsible-header' onclick='toggleCard("deploy-card")' style='color:#2e7d32'>🧪 Before & After Deploy Queries <span class='toggle-icon'>&#9660;</span></div>
-    <div class='collapsible-body'>
-      <span style='font-size:.7rem;color:#666;margin-bottom:6px;display:block'>Save a green baseline, run the matching red, compare:</span>
-      <div style='display:flex;flex-direction:column;gap:4px'>
-      <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 8</button>
-      <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (values changed): patient_id, owner_id, name, species, breed, birth_date, gender, weight_kg+1 as weight_kg, microchip_id, status FROM patients LIMIT 8</button>
-      <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 5</button>
-      <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (rows added): * FROM patients LIMIT 8</button>
-      </div>
-    </div>
   </div>
 
   <div class='section-box-db'>
@@ -230,7 +203,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
     <div class='collapsible open' id='security-card'>
       <div class='collapsible-header' onclick='toggleCard("security-card")'>🔒 Security Demo <span class='toggle-icon'>&#9660;</span></div>
       <div class='collapsible-body'>
-        <p style='font-size:.74rem;color:#666;margin-bottom:8px'>Three layers of protection:<br>1. SELECT is hardcoded<br>2. 20+ forbidden keywords blocked<br>3. Databases open in read-only mode<br><br>Try to break it:</p>
+        <p style='font-size:.74rem;color:#666;margin-bottom:8px'>Three layers of protection:<br>1. SELECT is hardcoded<br>2. 20+ forbidden keywords blocked<br>3. Databases open in read-only mode<br><br>Try it yourself:</p>
         <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828' onclick='tryBreak("DELETE FROM patients")'>DELETE FROM patients</button>
         <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828' onclick='tryBreak("UPDATE patients SET name = hacked")'>UPDATE patients SET...</button>
         <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828' onclick='tryBreak("INSERT INTO patients VALUES (null, 1, test, Dog)")'>INSERT INTO patients</button>
@@ -252,19 +225,46 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
       </div>
     </div>
 
+    <div class='collapsible' id='examples-card'>
+      <div class='collapsible-header' onclick='toggleCard("examples-card")'>💡 Example Queries <span class='toggle-icon'>&#9660;</span></div>
+      <div class='collapsible-body'>
+        <div class='examples'>
+          <button class='example-btn' onclick='setExample(this)'>* FROM patients LIMIT 10</button>
+          <button class='example-btn' onclick='setExample(this)'>name, species FROM patients WHERE species='Dog' LIMIT 20</button>
+          <button class='example-btn' onclick='setExample(this)'>COUNT(*) AS total FROM appointments GROUP BY status</button>
+          <button class='example-btn' onclick='setExample(this)'>v.first_name, v.specialization FROM veterinarians v</button>
+          <button class='example-btn' onclick='setExample(this)'>p.name, a.reason FROM patients p JOIN appointments a ON p.patient_id=a.patient_id LIMIT 15</button>
+          <button class='example-btn' onclick='setExample(this)'>i.total_amount, i.payment_status FROM invoices i WHERE i.payment_status='Overdue'</button>
+        </div>
+      </div>
+    </div>
+
+    <div class='collapsible' id='deploy-card'>
+      <div class='collapsible-header' onclick='toggleCard("deploy-card")' style='color:#2e7d32'>🧪 Before & After Deploy Queries <span class='toggle-icon'>&#9660;</span></div>
+      <div class='collapsible-body'>
+        <span style='font-size:.7rem;color:#666;margin-bottom:6px;display:block'>Save a green baseline, run the matching red, compare:</span>
+        <div style='display:flex;flex-direction:column;gap:4px'>
+        <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 8</button>
+        <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (values changed): patient_id, owner_id, name, species, breed, birth_date, gender, weight_kg+1 as weight_kg, microchip_id, status FROM patients LIMIT 8</button>
+        <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 5</button>
+        <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (rows added): * FROM patients LIMIT 8</button>
+        </div>
+      </div>
+    </div>
+
     <div class='collapsible' id='why-card'>
       <div class='collapsible-header' onclick='toggleCard("why-card")'>Why This Tool <span class='toggle-icon'>&#9660;</span></div>
       <div class='collapsible-body'>
         <ul class='benefits-list'>
           <li><span class='icon'>🔒</span><span class='text'><strong>Data stays on VM</strong> - runs locally, no cloud upload.</span></li>
-          <li><span class='icon'>🐍</span><span class='text'><strong>Python, not AI</strong> - no AI agreements, no third parties.</span></li>
+          <li><span class='icon'>🐍</span><span class='text'><strong>Python, not AI</strong> - no AI services, no third parties.</span></li>
           <li><span class='icon'>✅</span><span class='text'><strong>Deploy verification</strong> - secondary read-only check.</span></li>
           <li><span class='icon'>📊</span><span class='text'><strong>Volume testing</strong> - query real data from backend.</span></li>
           <li><span class='icon'>👥</span><span class='text'><strong>Reduces manual error</strong> - one query, all databases.</span></li>
           <li><span class='icon'>🐕</span><span class='text'><strong>Hands-off testing</strong> - tester verifies independently.</span></li>
           <li><span class='icon'>📸</span><span class='text'><strong>Before/after baselines</strong> - save pre-deploy, compare post.</span></li>
           <li><span class='icon'>⚡</span><span class='text'><strong>Concurrent queries</strong> - all 10 in milliseconds.</span></li>
-          <li><span class='icon'>🛡️</span><span class='text'><strong>Read-only by design</strong> - SELECT hardcoded.</span></li>
+          <li><span class='icon'>🛡️</span><span class='text'><strong>Read-only by design</strong> - SELECT hardcoded, aimed at keeping data safe.</span></li>
           <li><span class='icon'>🔗</span><span class='text'><strong>Shareable demo</strong> - show stakeholders the concept.</span></li>
         </ul>
       </div>
@@ -748,13 +748,13 @@ let demoTimer = null;
 let demoStep = 0;
 const APP_URL = window.location.origin;
 const demoSteps = [
-  {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across single or multiple veterinary practice databases simultaneously — all from a single screen.', delay:8000, target:null},
+  {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across multiple veterinary practice databases simultaneously — all from a single screen. Let me walk you through how it works.', delay:8000, target:null},
   {text:'Type your query here. SELECT is already provided. Let me run a query to show you.', delay:7000, action:'typeQuery1', target:'#queryInput'},
-  {text:'Run Query sends the same query to all selected databases at once. Results appear in milliseconds...', delay:6000, action:'clickRun', target:'.run-btn'},
+  {text:'The query runs against all selected databases at once. Click Run to send it — results appear in milliseconds.', delay:8000, action:'clickRun', target:'.run-btn'},
   {text:'Results appear for each database as collapsed panels — just the practice name, row count, and execution time. All queried concurrently.', delay:9000, action:'scrollResults', target:'#resultsContainer'},
   {text:'Watch — I will click this panel to expand it and see the actual data...', delay:6000, action:'expandDemo', target:'.result-card'},
   {text:'Now you can see the full data table. Click again to collapse it back — this keeps the view clean when you have many databases.', delay:8000, action:'collapseDemo', target:'.result-card'},
-  {text:'You can also use this as a test-after-deploy tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
+  {text:'You can also use this as a deploy verification tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
   {text:'Baseline saved. Now let me simulate a data change by running a slightly different query — as if the data had been updated after a deploy.', delay:9000, action:'typeQuery2', target:'#queryInput'},
   {text:'Running the modified query now — weight_kg values are incremented to simulate a data change after deploy.', delay:7000, action:'clickRun2', target:'.run-btn'},
   {text:'Now load the baseline and compare to see the differences.', delay:8000, action:'compareDemo', target:'.results-header'},
@@ -766,11 +766,11 @@ const demoSteps = [
   {text:'Now compare — you will see the 3 added rows highlighted in green with their full data.', delay:8000, action:'compareDemo2', target:'.results-header'},
   {text:'The comparison shows the 3 actual added rows — proof that the tool catches row additions, not just value changes.', delay:9000, action:'scrollDiff2', target:'#diffArea'},
   {text:'You can also select which databases to target — query all of them, just one, or a specific subset. Useful when you only deployed to certain practices and want to verify just those.', delay:6000, action:'pointDbs', target:'.section-box-db'},
-  {text:'Let me prove it is read-only. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
-  {text:'BLOCKED. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode. No data can be modified through this tool.', delay:10000, action:null, target:'#security-card'},
-  {text:'Data never leaves the VM. Pure Python, no AI, no data processing agreements. Zero risk to production data.', delay:8000, action:null, target:'#security-card'},
-  {text:'The key use case: a tester verifies a deploy from a completely separate session. After a developer commits a change, the tester launches the app on their VM, loads the baseline, runs the same query, and compares — no access to the developer session needed.', delay:12000, action:null, target:'#saveBaselineBtn'},
-  {text:'Here is the link. Hand it over and try it yourself.', delay:0, action:'showFinal', target:null}
+  {text:'Let me show you the read-only protection in action. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
+  {text:'Blocked. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode — designed to keep your data safe.', delay:10000, action:null, target:'#security-card'},
+  {text:'Data stays on the VM. Pure Python, no AI services, no third-party data processing — keeping things simple and secure by design.', delay:8000, action:null, target:'#security-card'},
+  {text:'The key use case: a tester verifies a deploy from a completely separate session. After a developer commits a change, the tester launches the app on their VM, loads the baseline, runs the same query, and compares — all independently.', delay:12000, action:null, target:'#saveBaselineBtn'},
+  {text:'Here is the link — feel free to try it yourself. Thanks for watching!', delay:0, action:'showFinal', target:null}
 ];
 function startDemoTour(){
   demoStep = 0;
@@ -821,8 +821,11 @@ function executeDemoAction(action){
       typeText('queryInput', '* FROM patients LIMIT 8', 30);
       break;
     case 'clickRun':
-      highlightElement('.run-btn', 'Click Run Query');
-      setTimeout(() => runQuery(), 500);
+      highlightElement('.section-box-db', 'Query runs on all selected databases');
+      setTimeout(() => {
+        highlightElement('.run-btn', 'Click Run Query');
+        setTimeout(() => runQuery(), 500);
+      }, 2000);
       break;
     case 'scrollResults':
       setTimeout(() => {

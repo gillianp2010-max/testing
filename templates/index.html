@@ -585,8 +585,14 @@ function renderDiff(base, curr){
       const currSet = new Set(c.rows.map(r => JSON.stringify(r)));
       const addedRows = c.rows.filter(r => !baseSet.has(JSON.stringify(r)));
       const removedRows = b.rows.filter(r => !currSet.has(JSON.stringify(r)));
-      added = addedRows.length;
-      removed = removedRows.length;
+      // When row counts are equal, differences are value changes, not additions/removals
+      if(b.rows.length === c.rows.length){
+        added = 0;
+        removed = 0;
+      } else {
+        added = addedRows.length;
+        removed = removedRows.length;
+      }
       if(added === 0 && removed === 0){
         totalIdentical++;
         badges += '<span class=diff-badge-add>IDENTICAL</span>';
@@ -624,7 +630,7 @@ function renderDiff(base, curr){
             detail += '<div class=table-scroll style=max-height:300px;margin-top:4px><table class=data-table><thead>' + headerHTML + '</tr></thead><tbody>' + changeTableHTML + '</tbody></table></div>';
           }
         }
-        if(addedRows.length > 0){
+        if(addedRows.length > 0 && b.rows.length !== c.rows.length){
           let addTableHTML = '<tr>';
           c.columns.forEach(col => {addTableHTML += '<th>' + col + '</th>'});
           addTableHTML += '</tr>';
@@ -640,7 +646,7 @@ function renderDiff(base, curr){
           detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#2e7d32">Added rows (' + addedRows.length + '):</p>';
           detail += '<div class=table-scroll style=max-height:250px;margin-top:4px><table class=data-table><thead>' + addTableHTML + '</thead><tbody>' + addTableHTML + '</tbody></table></div>';
         }
-        if(removedRows.length > 0){
+        if(removedRows.length > 0 && b.rows.length !== c.rows.length){
           let remTableHTML = '<tr>';
           b.columns.forEach(col => {remTableHTML += '<th>' + col + '</th>'});
           remTableHTML += '</tr>';
@@ -747,10 +753,10 @@ const demoSteps = [
   {text:'Now you can see the full data table. Click again to collapse it back — this keeps the view clean when you have many databases.', delay:8000, action:'collapseDemo', target:'.result-card'},
   {text:'You can also use this as a test-after-deploy tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
   {text:'Baseline saved. Now let me simulate a data change by running a slightly different query — as if the data had been updated after a deploy.', delay:9000, action:'typeQuery2', target:'#queryInput'},
-  {text:'Running the same query again, but this time the data has changed...', delay:7000, action:'clickRun2', target:'.run-btn'},
+  {text:'Running the modified query now — weight_kg values are incremented to simulate a data change after deploy.', delay:7000, action:'clickRun2', target:'.run-btn'},
   {text:'Now load the baseline and compare to see the differences.', delay:8000, action:'compareDemo', target:'.results-header'},
-  {text:'The comparison highlights added rows, removed rows, and value changes per database — so you can confirm your deploy worked, or catch if you missed a database.', delay:12000, action:'scrollDiff', target:'#diffArea'},
-  {text:'You can also select which databases to target — query all of them, just one, or a specific subset. Useful when you only deployed to certain practices and want to verify just those.', delay:8000, action:'pointDbs', target:'.section-box-db'},
+  {text:'The comparison highlights value changes per database — so you can confirm your deploy worked, or catch if you missed a database.', delay:9000, action:'scrollDiff', target:'#diffArea'},
+  {text:'You can also select which databases to target — query all of them, just one, or a specific subset. Useful when you only deployed to certain practices and want to verify just those.', delay:6000, action:'pointDbs', target:'.section-box-db'},
   {text:'Let me prove it is read-only. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
   {text:'BLOCKED. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode. No data can be modified through this tool.', delay:10000, action:null, target:'#security-card'},
   {text:'Data never leaves the VM. Pure Python, no AI, no data processing agreements. Zero risk to production data.', delay:8000, action:null, target:'#security-card'},

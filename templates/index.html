@@ -585,82 +585,85 @@ function renderDiff(base, curr){
       const currSet = new Set(c.rows.map(r => JSON.stringify(r)));
       const addedRows = c.rows.filter(r => !baseSet.has(JSON.stringify(r)));
       const removedRows = b.rows.filter(r => !currSet.has(JSON.stringify(r)));
-      // When row counts are equal, differences are value changes, not additions/removals
-      if(b.rows.length === c.rows.length){
-        added = 0;
-        removed = 0;
+      // When row and column counts match, do row-by-row value comparison
+      if(b.rows.length === c.rows.length && b.columns.length === c.columns.length){
+        let changeTableHTML = '';
+        for(let i=0; i<b.rows.length; i++){
+          const br = b.rows[i], cr = c.rows[i];
+          let rowChanged = false;
+          let rowHTML = '<tr><td style=color:#999>' + (i+1) + '</td>';
+          for(let ci=0; ci<b.columns.length; ci++){
+            const bCol = b.columns[ci], cCol = c.columns[ci];
+            const bVal = br[bCol], cVal = cr[cCol];
+            if(String(bVal) !== String(cVal)){
+              rowChanged = true;
+              rowHTML += '<td style=background:#fff3e0><span style=color:#c62828;text-decoration:line-through>' + String(bVal).substring(0,40) + '</span><br><span style=color:#2e7d32;font-weight:600>' + String(cVal).substring(0,40) + '</span></td>';
+            } else {
+              rowHTML += '<td>' + String(bVal).substring(0,40) + '</td>';
+            }
+          }
+          if(rowChanged){
+            valueChanged++;
+            if(changeTableHTML.length < 5000) changeTableHTML += rowHTML + '</tr>';
+          }
+        }
+        if(valueChanged > 0){
+          totalValueChanged += valueChanged;
+          totalChanged++;
+          badges += '<span class=diff-badge-chg>' + valueChanged + ' rows with data changes</span> ';
+          let headerHTML = '<tr><th>#</th>';
+          b.columns.forEach(col => {headerHTML += '<th>' + col + '</th>'});
+          detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#f57f17">Changed rows (old struck through, new in green):</p>';
+          detail += '<div class=table-scroll style=max-height:300px;margin-top:4px><table class=data-table><thead>' + headerHTML + '</tr></thead><tbody>' + changeTableHTML + '</tbody></table></div>';
+        } else {
+          totalIdentical++;
+          badges += '<span class=diff-badge-add>IDENTICAL</span>';
+        }
       } else {
+        // Row counts differ — show added/removed rows
         added = addedRows.length;
         removed = removedRows.length;
-      }
-      if(added === 0 && removed === 0){
-        totalIdentical++;
-        badges += '<span class=diff-badge-add>IDENTICAL</span>';
-      } else {
-        totalChanged++;
-        if(added > 0) badges += '<span class=diff-badge-add>+' + added + ' new rows</span> ';
-        if(removed > 0) badges += '<span class=diff-badge-rem>-' + removed + ' changed rows</span> ';
-        if(b.rows.length === c.rows.length && b.columns.length === c.columns.length){
-          let changeTableHTML = '';
-          for(let i=0; i<b.rows.length; i++){
-            const br = b.rows[i], cr = c.rows[i];
-            let rowChanged = false;
-            let rowHTML = '<tr><td style=color:#999>' + (i+1) + '</td>';
-            for(let ci=0; ci<b.columns.length; ci++){
-              const bCol = b.columns[ci], cCol = c.columns[ci];
-              const bVal = br[bCol], cVal = cr[cCol];
-              if(String(bVal) !== String(cVal)){
-                rowChanged = true;
-                rowHTML += '<td style=background:#fff3e0><span style=color:#c62828;text-decoration:line-through>' + String(bVal).substring(0,40) + '</span><br><span style=color:#2e7d32;font-weight:600>' + String(cVal).substring(0,40) + '</span></td>';
-              } else {
-                rowHTML += '<td>' + String(bVal).substring(0,40) + '</td>';
-              }
-            }
-            if(rowChanged){
-              valueChanged++;
-              if(changeTableHTML.length < 5000) changeTableHTML += rowHTML + '</tr>';
-            }
-          }
-          if(valueChanged > 0){
-            totalValueChanged += valueChanged;
-            badges += '<span class=diff-badge-chg>' + valueChanged + ' rows with data changes</span> ';
-            let headerHTML = '<tr><th>#</th>';
-            b.columns.forEach(col => {headerHTML += '<th>' + col + '</th>'});
-            detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#f57f17">Changed rows (old struck through, new in green):</p>';
-            detail += '<div class=table-scroll style=max-height:300px;margin-top:4px><table class=data-table><thead>' + headerHTML + '</tr></thead><tbody>' + changeTableHTML + '</tbody></table></div>';
-          }
-        }
-        if(addedRows.length > 0 && b.rows.length !== c.rows.length){
-          let addTableHTML = '<tr>';
-          c.columns.forEach(col => {addTableHTML += '<th>' + col + '</th>'});
-          addTableHTML += '</tr>';
-          addedRows.forEach(r => {
-            addTableHTML += '<tr style=background:#e8f5e9>';
-            c.columns.forEach(col => {
-              let v = r[col];
-              if(v === null) v = '<span style=color:#ccc>NULL</span>';
-              addTableHTML += '<td>' + String(v).substring(0,40) + '</td>';
+        if(added === 0 && removed === 0){
+          totalIdentical++;
+          badges += '<span class=diff-badge-add>IDENTICAL</span>';
+        } else {
+          totalChanged++;
+          if(added > 0) badges += '<span class=diff-badge-add>+' + added + ' new rows</span> ';
+          if(removed > 0) badges += '<span class=diff-badge-rem>-' + removed + ' removed rows</span> ';
+          if(addedRows.length > 0){
+            let addHeaderHTML = '<tr>';
+            c.columns.forEach(col => {addHeaderHTML += '<th>' + col + '</th>'});
+            addHeaderHTML += '</tr>';
+            let addBodyHTML = '';
+            addedRows.forEach(r => {
+              addBodyHTML += '<tr style=background:#c8e6c9;border:2px solid #43a047>';
+              c.columns.forEach(col => {
+                let v = r[col];
+                if(v === null) v = '<span style=color:#ccc>NULL</span>';
+                addBodyHTML += '<td style=font-weight:600>' + String(v).substring(0,40) + '</td>';
+              });
+              addBodyHTML += '</tr>';
             });
-            addTableHTML += '</tr>';
-          });
-          detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#2e7d32">Added rows (' + addedRows.length + '):</p>';
-          detail += '<div class=table-scroll style=max-height:250px;margin-top:4px><table class=data-table><thead>' + addTableHTML + '</thead><tbody>' + addTableHTML + '</tbody></table></div>';
-        }
-        if(removedRows.length > 0 && b.rows.length !== c.rows.length){
-          let remTableHTML = '<tr>';
-          b.columns.forEach(col => {remTableHTML += '<th>' + col + '</th>'});
-          remTableHTML += '</tr>';
-          removedRows.forEach(r => {
-            remTableHTML += '<tr style=background:#ffebee>';
-            b.columns.forEach(col => {
-              let v = r[col];
-              if(v === null) v = '<span style=color:#ccc>NULL</span>';
-              remTableHTML += '<td>' + String(v).substring(0,40) + '</td>';
+            detail += '<p style="font-size:.8rem;font-weight:700;margin:10px 0 4px;color:#2e7d32">🟢 Added rows (' + addedRows.length + '):</p>';
+            detail += '<div class=table-scroll style=max-height:300px;margin-top:4px;border:2px solid #66bb6a;border-radius:6px><table class=data-table><thead>' + addHeaderHTML + '</thead><tbody>' + addBodyHTML + '</tbody></table></div>';
+          }
+          if(removedRows.length > 0){
+            let remHeaderHTML = '<tr>';
+            b.columns.forEach(col => {remHeaderHTML += '<th>' + col + '</th>'});
+            remHeaderHTML += '</tr>';
+            let remBodyHTML = '';
+            removedRows.forEach(r => {
+              remBodyHTML += '<tr style=background:#ffcdd2;border:2px solid #e53935>';
+              b.columns.forEach(col => {
+                let v = r[col];
+                if(v === null) v = '<span style=color:#ccc>NULL</span>';
+                remBodyHTML += '<td style=font-weight:600>' + String(v).substring(0,40) + '</td>';
+              });
+              remBodyHTML += '</tr>';
             });
-            remTableHTML += '</tr>';
-          });
-          detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#c62828">Removed rows (' + removedRows.length + '):</p>';
-          detail += '<div class=table-scroll style=max-height:250px;margin-top:4px><table class=data-table><thead>' + remTableHTML + '</thead><tbody>' + remTableHTML + '</tbody></table></div>';
+            detail += '<p style="font-size:.8rem;font-weight:700;margin:10px 0 4px;color:#c62828">🔴 Removed rows (' + removedRows.length + '):</p>';
+            detail += '<div class=table-scroll style=max-height:300px;margin-top:4px;border:2px solid #ef5350;border-radius:6px><table class=data-table><thead>' + remHeaderHTML + '</thead><tbody>' + remBodyHTML + '</tbody></table></div>';
+          }
         }
       }
     }

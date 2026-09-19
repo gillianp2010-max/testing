@@ -180,26 +180,30 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
   </div>
   </div>
 
-  <div class='section-box'>
-    <div class='section-label'>💡 Example Queries</div>
-  <div class='examples'>
-    <button class='example-btn' onclick='setExample(this)'>* FROM patients LIMIT 10</button>
-    <button class='example-btn' onclick='setExample(this)'>name, species FROM patients WHERE species='Dog' LIMIT 20</button>
-    <button class='example-btn' onclick='setExample(this)'>COUNT(*) AS total FROM appointments GROUP BY status</button>
-    <button class='example-btn' onclick='setExample(this)'>v.first_name, v.specialization FROM veterinarians v</button>
-    <button class='example-btn' onclick='setExample(this)'>p.name, a.reason FROM patients p JOIN appointments a ON p.patient_id=a.patient_id LIMIT 15</button>
-    <button class='example-btn' onclick='setExample(this)'>i.total_amount, i.payment_status FROM invoices i WHERE i.payment_status='Overdue'</button>
-  </div>
+  <div class='collapsible section-box' id='examples-card'>
+    <div class='collapsible-header' onclick='toggleCard("examples-card")'>💡 Example Queries <span class='toggle-icon'>&#9660;</span></div>
+    <div class='collapsible-body'>
+      <div class='examples'>
+        <button class='example-btn' onclick='setExample(this)'>* FROM patients LIMIT 10</button>
+        <button class='example-btn' onclick='setExample(this)'>name, species FROM patients WHERE species='Dog' LIMIT 20</button>
+        <button class='example-btn' onclick='setExample(this)'>COUNT(*) AS total FROM appointments GROUP BY status</button>
+        <button class='example-btn' onclick='setExample(this)'>v.first_name, v.specialization FROM veterinarians v</button>
+        <button class='example-btn' onclick='setExample(this)'>p.name, a.reason FROM patients p JOIN appointments a ON p.patient_id=a.patient_id LIMIT 15</button>
+        <button class='example-btn' onclick='setExample(this)'>i.total_amount, i.payment_status FROM invoices i WHERE i.payment_status='Overdue'</button>
+      </div>
+    </div>
   </div>
 
-  <div class='section-box-demo'>
-    <div class='section-label' style='color:#2e7d32'>🧪 Test After Deploy Queries</div>
-    <span style='font-size:.7rem;color:#666;margin-bottom:6px;display:block'>Save a green baseline, run the matching red, compare:</span>
-    <div style='display:flex;flex-direction:column;gap:4px'>
-    <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 8</button>
-    <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (values changed): patient_id, owner_id, name, species, breed, birth_date, gender, weight_kg+1 as weight_kg, microchip_id, status FROM patients LIMIT 8</button>
-    <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 5</button>
-    <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (rows added): * FROM patients LIMIT 8</button>
+  <div class='collapsible section-box-demo' id='deploy-card'>
+    <div class='collapsible-header' onclick='toggleCard("deploy-card")' style='color:#2e7d32'>🧪 Before & After Deploy Queries <span class='toggle-icon'>&#9660;</span></div>
+    <div class='collapsible-body'>
+      <span style='font-size:.7rem;color:#666;margin-bottom:6px;display:block'>Save a green baseline, run the matching red, compare:</span>
+      <div style='display:flex;flex-direction:column;gap:4px'>
+      <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 8</button>
+      <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (values changed): patient_id, owner_id, name, species, breed, birth_date, gender, weight_kg+1 as weight_kg, microchip_id, status FROM patients LIMIT 8</button>
+      <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 5</button>
+      <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (rows added): * FROM patients LIMIT 8</button>
+      </div>
     </div>
   </div>
 

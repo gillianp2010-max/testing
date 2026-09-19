@@ -149,11 +149,12 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <div class='landing-page' id='landingPage'>
   <div class='landing-icon'>🐾</div>
   <h1>Vet Practice SQL Tester</h1>
-  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys independently, compare baselines, and keep data on the VM. This demo uses dummy data — the real app connects to your live databases.</p>
+  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys independently, compare baselines, and keep data on the VM.</p>
   <div class='landing-buttons'>
     <button class='btn-landing-demo' onclick='enterApp(true)'>▶ Start Demo Tour</button>
     <button class='btn-landing-enter' onclick='enterApp(false)'>Enter Tool</button>
   </div>
+  <div style='margin-top:20px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;font-size:.78rem;color:rgba(255,255,255,.95)'><span style='display:inline-block;animation:spin 3s linear infinite'>⚙️</span> Simulated data &amp; practices</div>
   <div class='landing-features'>
     <span class='feature-chip'>🔍 Independent deploy verification</span>
     <span class='feature-chip'>🔒 Read-only by design</span>
@@ -166,6 +167,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <div id='mainApp'>
 <div class='top-bar'>
   <h1>Vet Practice SQL Tester</h1>
+  <span style='display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:16px;padding:3px 10px;font-size:.68rem;color:rgba(255,255,255,.95);vertical-align:middle;margin-right:8px'><span style='display:inline-block;animation:spin 3s linear infinite'>⚙️</span> Simulated data</span>
   <button class='demo-btn' onclick='startDemoTour()'>▶ Start Demo Tour</button>
 
   <div class='section-box-query'>
@@ -755,7 +757,7 @@ let demoTimer = null;
 let demoStep = 0;
 const APP_URL = window.location.origin;
 const demoSteps = [
-  {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across multiple veterinary practice databases simultaneously — all from a single screen. The data and practices shown here are dummy data for demonstration — the real app connects to your live databases. Let me walk you through how it works.', delay:10000, target:null},
+  {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across multiple veterinary practice databases simultaneously — all from a single screen. The live app is configurable to your own databases. Let me walk you through how it works.', delay:10000, target:null},
   {text:'Type your query here. SELECT is already provided. Let me run a query to show you.', delay:7000, action:'typeQuery1', target:'#queryInput'},
   {text:'The query runs against all selected databases at once. Click Run to send it — results appear in milliseconds.', delay:8000, action:'clickRun', target:'.section-box-db'},
   {text:'Results appear for each database as collapsed panels — just the practice name, row count, and execution time. All queried concurrently.', delay:9000, action:'scrollResults', target:'#resultsContainer'},

@@ -757,7 +757,7 @@ const APP_URL = window.location.origin;
 const demoSteps = [
   {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across multiple veterinary practice databases simultaneously — all from a single screen. Let me walk you through how it works.', delay:8000, target:null},
   {text:'Type your query here. SELECT is already provided. Let me run a query to show you.', delay:7000, action:'typeQuery1', target:'#queryInput'},
-  {text:'The query runs against all selected databases at once. Click Run to send it — results appear in milliseconds.', delay:8000, action:'clickRun', target:'.run-btn'},
+  {text:'The query runs against all selected databases at once. Click Run to send it — results appear in milliseconds.', delay:8000, action:'clickRun', target:'.section-box-db'},
   {text:'Results appear for each database as collapsed panels — just the practice name, row count, and execution time. All queried concurrently.', delay:9000, action:'scrollResults', target:'#resultsContainer'},
   {text:'Watch — I will click this panel to expand it and see the actual data...', delay:6000, action:'expandDemo', target:'.result-card'},
   {text:'Now you can see the full data table. Click again to collapse it back — this keeps the view clean when you have many databases.', delay:8000, action:'collapseDemo', target:'.result-card'},
@@ -829,10 +829,7 @@ function executeDemoAction(action){
       break;
     case 'clickRun':
       highlightElement('.section-box-db', 'Query runs on all selected databases');
-      setTimeout(() => {
-        highlightElement('.run-btn', 'Click Run Query');
-        setTimeout(() => runQuery(), 500);
-      }, 2000);
+      setTimeout(() => runQuery(), 2500);
       break;
     case 'scrollResults':
       setTimeout(() => {

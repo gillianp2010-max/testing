@@ -301,18 +301,25 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
    # pyodbc for SQL Server
 5. python app.py
    → open http://localhost:8000 in browser</p>
-        <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Auto-Start on Reboot (NSSM Windows Service)</p>
-        <p style='font-size:.72rem;color:#555;font-family:monospace;white-space:pre;line-height:1.8'>1. Download nssm from nssm.cc
-2. Open admin Command Prompt:
-   nssm install VetSqlTester
-   → Set Application Path: C:\vet-sql-tester\app.py
-   → Set Startup Dir: C:\vet-sql-tester
-   → Set Environment: VET_BASELINE_DIR=C:\vet-sql-tester\baselines
-   nssm start VetSqlTester
+        <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Desktop Shortcut (standalone app)</p>
+         <p style='font-size:.72rem;color:#555;font-family:monospace;white-space:pre;line-height:1.8'>1. Create a batch file: C:\vet-sql-tester\start.bat
+   Contents:
+   @echo off
+   cd /d C:\vet-sql-tester
+   set VET_BASELINE_DIR=C:\vet-sql-tester\baselines
+   python app.py
+2. Right-click start.bat → Send to → Desktop (create shortcut)
+3. Right-click the shortcut → Properties:
+   → Change icon → pick any .ico you like
+   → Rename to "Vet SQL Tester"
+4. Double-click to launch → opens http://localhost:8000
 
-App now starts automatically when the VM boots.</p>
+Tip: Copy the shortcut to:
+   C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Windows\
+   Start Menu\Programs\Startup\
+   to auto-launch when you log in.</p>
         <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Production Mode (SQL Server on VM)</p>
-        <p style='font-size:.72rem;color:#555'>Edit run_query_on_db() in app.py to connect to your real SQL Server database. Use pyodbc with ApplicationIntent=ReadOnly in the connection string. Data never leaves the VM — no cloud upload, no AI, no Azure Blob storage. Everything stays in folders on C:.</p>
+        <p style='font-size:.72rem;color:#555'>Edit run_query_on_db() in app.py to connect to your real SQL Server database. Use pyodbc with ApplicationIntent=ReadOnly in the connection string. Data stays on the VM — no cloud upload, no AI services. Everything stays in folders on C:.</p>
       </div>
     </div>
   </div>
@@ -755,7 +762,7 @@ const demoSteps = [
   {text:'Watch — I will click this panel to expand it and see the actual data...', delay:6000, action:'expandDemo', target:'.result-card'},
   {text:'Now you can see the full data table. Click again to collapse it back — this keeps the view clean when you have many databases.', delay:8000, action:'collapseDemo', target:'.result-card'},
   {text:'You can also use this as a deploy verification tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
-  {text:'Baseline saved. Now let me simulate a data change by running a slightly different query — as if the data had been updated after a deploy.', delay:9000, action:'typeQuery2', target:'#queryInput'},
+  {text:'Baseline saved. Now I will run a modified query — this simulates what you would see after a deploy where the data has changed.', delay:9000, action:'typeQuery2', target:'#queryInput'},
   {text:'Running the modified query now — weight_kg values are incremented to simulate a data change after deploy.', delay:7000, action:'clickRun2', target:'.run-btn'},
   {text:'Now load the baseline and compare to see the differences.', delay:8000, action:'compareDemo', target:'.results-header'},
   {text:'The comparison highlights value changes per database — so you can confirm your deploy worked, or catch if you missed a database.', delay:9000, action:'scrollDiff', target:'#diffArea'},
@@ -903,10 +910,13 @@ function executeDemoAction(action){
       }, 500);
       break;
     case 'typeQuery3':
+      window.scrollTo({top: 0, behavior: 'smooth'});
       document.getElementById('queryInput').value = '';
-      document.getElementById('queryInput').focus();
-      typeText('queryInput', '* FROM patients LIMIT 5', 30);
-      highlightElement('#queryInput', 'Before query (LIMIT 5)');
+      setTimeout(() => {
+        document.getElementById('queryInput').focus();
+        typeText('queryInput', '* FROM patients LIMIT 5', 30);
+        highlightElement('#queryInput', 'Before query (LIMIT 5)');
+      }, 600);
       break;
     case 'clickRun3':
       highlightElement('.run-btn', 'Run before query');

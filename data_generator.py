@@ -28,6 +28,18 @@ PET_NAMES = ["Bella","Max","Luna","Charlie","Lucy","Cooper","Bailey","Daisy","Ro
              "Sadie","Bear","Lola","Duke","Coco","Buddy","Molly","Oliver","Maggie","Tucker",
              "Sophie","Shadow","Chloe","Riley","Zeus","Lily","Jack","Dexter","Stella","Rex",
              "Zoe","Gizmo","Nala","Mocha","Winston","Penny","Oreo","Gracie","Bentley","Ruby"]
+WEIGHT_RANGES = {
+    "Dog": (2.0, 45.0),
+    "Cat": (2.5, 8.0),
+    "Bird": (0.01, 1.5),
+    "Rabbit": (0.5, 5.0),
+    "Guinea Pig": (0.4, 1.5),
+    "Hamster": (0.02, 0.18),
+    "Turtle": (0.1, 4.0),
+    "Ferret": (0.5, 3.0),
+    "Lizard": (0.01, 2.0),
+    "Snake": (0.1, 5.0),
+}
 SPECIES = ["Dog","Cat","Bird","Rabbit","Guinea Pig","Hamster","Turtle","Ferret","Lizard","Snake"]
 BREEDS = {
     "Dog": ["Labrador Retriever","German Shepherd","Golden Retriever","French Bulldog","Beagle","Poodle","Rottweiler","Yorkshire Terrier","Boxer","Dachshund"],
@@ -213,7 +225,7 @@ def _create_practice_database(practice, db_dir):
             breed = random.choice(BREEDS.get(species, ["Mixed"]))
             dob = _random_date(datetime(2010,1,1), datetime(2024,6,30)).strftime("%Y-%m-%d")
             gender = random.choice(["Male","Female"]) if species in ["Dog","Cat"] else random.choice(["Male","Female","Unknown"])
-            weight = round(random.uniform(0.1, 45.0), 2)
+            weight = round(random.uniform(*WEIGHT_RANGES.get(species, (0.5, 10.0))), 2)
             microchip = f"ISO-{random.randint(100000000000,999999999999)}" if random.random() > 0.3 else None
             status = random.choices(["Active","Inactive","Deceased"], weights=[85,10,5])[0]
             cursor.execute("INSERT INTO patients (owner_id,name,species,breed,birth_date,gender,weight_kg,microchip_id,status) VALUES (?,?,?,?,?,?,?,?,?)",

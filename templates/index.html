@@ -744,13 +744,13 @@ const demoSteps = [
   {text:'You can also use this as a test-after-deploy tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
   {text:'Baseline saved. Now let me simulate a data change by running a slightly different query — as if the data had been updated after a deploy.', delay:9000, action:'typeQuery2', target:'#queryInput'},
   {text:'Running the same query again, but this time the data has changed...', delay:7000, action:'clickRun2', target:'.run-btn'},
-  {text:'Now load the baseline and compare to see the differences.', delay:8000, action:'compareDemo', target:'#baselineSelect'},
+  {text:'Now load the baseline and compare to see the differences.', delay:8000, action:'compareDemo', target:'.results-header'},
   {text:'The comparison highlights added rows, removed rows, and value changes per database — so you can confirm your deploy worked, or catch if you missed a database.', delay:12000, action:'scrollDiff', target:'#diffArea'},
   {text:'You can also select which databases to target — query all of them, just one, or a specific subset. Useful when you only deployed to certain practices and want to verify just those.', delay:8000, action:'pointDbs', target:'.section-box-db'},
   {text:'Let me prove it is read-only. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
   {text:'BLOCKED. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode. No data can be modified through this tool.', delay:10000, action:null, target:'#security-card'},
   {text:'Data never leaves the VM. Pure Python, no AI, no data processing agreements. Zero risk to production data.', delay:8000, action:null, target:'#security-card'},
-  {text:'The key use case: a tester verifies a deploy from a completely separate session. After a developer commits a change, the tester opens this tool from their own browser, loads the baseline, runs the same query, and compares — no access to the developer session needed.', delay:12000, action:null, target:'#saveBaselineBtn'},
+  {text:'The key use case: a tester verifies a deploy from a completely separate session. After a developer commits a change, the tester launches the app on their VM, loads the baseline, runs the same query, and compares — no access to the developer session needed.', delay:12000, action:null, target:'#saveBaselineBtn'},
   {text:'Here is the link. Hand it over and try it yourself.', delay:0, action:'showFinal', target:null}
 ];
 function startDemoTour(){
@@ -856,7 +856,7 @@ function executeDemoAction(action){
       setTimeout(() => runQuery(), 500);
       break;
     case 'compareDemo':
-      highlightElement('#baselineSelect', 'Load Baseline then Compare');
+      highlightElement('.results-header', 'Load Baseline then Compare');
       setTimeout(async () => {
         const sel = document.getElementById('baselineSelect');
         for(let i=0; i<sel.options.length; i++){

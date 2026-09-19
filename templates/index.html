@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Vet Practice SQL Tester</title>
+<style>
+:root{--primary:#0a7e8a;--primary-dark:#065f6b;--primary-light:#14b8a6;--accent:#ff6b6b;--accent-dark:#ee5a52;--bg:#f0f4f8;--card:#fff;--text:#1a2e35;--border:#c7e4ea;--shadow:0 2px 8px rgba(10,126,138,.1);--ref-w:220px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#f0f4f8,#e8f5f3);color:var(--text);line-height:1.5;font-size:.88rem;min-height:100vh}
+.top-bar{background:linear-gradient(135deg,#0a7e8a,#14b8a6);border-bottom:none;padding:14px 20px;max-width:1600px;margin:0 auto;border-radius:0 0 12px 12px;box-shadow:0 4px 16px rgba(10,126,138,.2)}
+.bottom-layout{display:flex;min-height:calc(100vh - 220px);max-width:1600px;margin:0 auto}
+.ref-sidebar{width:var(--ref-w);flex-shrink:0;padding:12px;overflow-y:auto;border-right:1px solid var(--border);background:rgba(255,255,255,.7);backdrop-filter:blur(4px)}
+.main{flex:1;padding:16px;overflow-x:auto;min-width:0}
+.top-bar h1{font-size:1.2rem;color:#fff;display:inline;margin-right:12px;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+.top-bar .demo-btn{vertical-align:middle;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4)}
+.top-bar .demo-btn:hover{background:rgba(255,255,255,.3)}
+.section{margin-bottom:16px}
+.section-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--primary);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--border)}
+.query-row{display:flex;align-items:stretch;border:2px solid var(--border);border-radius:6px;overflow:hidden;flex:1}
+.query-prefix{background:var(--primary);color:#fff;padding:8px 10px;font-family:'Courier New',monospace;font-weight:700;white-space:nowrap;display:flex;align-items:center;font-size:.82rem}
+.query-input{flex:1;padding:8px 10px;border:none;font-family:'Courier New',monospace;font-size:.82rem;outline:none}
+.query-input:focus{background:#f9fdfe}
+.btn{padding:7px 16px;border:none;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:0 2px 6px rgba(10,126,138,.3)}.btn-primary:hover{background:linear-gradient(135deg,var(--primary-dark),var(--primary));transform:translateY(-1px)}
+.btn-secondary{background:#e2ecf0;color:var(--text)}.btn-secondary:hover{background:#d0e0e8}
+.btn-success{background:linear-gradient(135deg,#43a047,#66bb6a);color:#fff;box-shadow:0 2px 6px rgba(67,160,71,.3)}.btn-success:hover{background:linear-gradient(135deg,#2e7d32,#43a047);transform:translateY(-1px)}
+.btn-sm{padding:5px 10px;font-size:.76rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-row{display:flex;gap:6px;margin-bottom:8px}
+.examples{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.example-btn{padding:3px 8px;background:#eaf4f7;border:1px solid var(--border);border-radius:4px;font-size:.72rem;font-family:'Courier New',monospace;cursor:pointer;color:var(--primary-dark);transition:all .15s}
+.example-btn:hover{background:var(--primary);color:#fff}
+.db-list{display:flex;flex-wrap:wrap;gap:4px}
+.db-item{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:.76rem;background:#f7fbfc;border:1px solid var(--border)}
+.db-item:hover{background:#f5fafb}
+.db-item .db-name{font-weight:500;color:var(--text)}
+.db-item .db-loc{color:#999;font-size:.72rem}
+.db-controls{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.db-controls span{font-size:.75rem;color:#666}
+.collapsible{margin-bottom:8px}
+.collapsible-header{padding:8px 12px;background:linear-gradient(135deg,#f7fbfc,#eef7fa);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;font-weight:600;color:var(--primary-dark);transition:all .15s;box-shadow:0 1px 3px rgba(10,126,138,.06)}
+.collapsible-header:hover{background:linear-gradient(135deg,#e8f5f3,#d4ede8);border-color:var(--primary-light)}
+.collapsible-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.collapsible.open .collapsible-body{max-height:2000px;overflow-y:auto;padding:8px 0}
+.collapsible-body .schema-table{font-size:.76rem}
+.collapsible-body .benefits-list li{padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:flex-start;font-size:.76rem}
+.collapsible-body .benefits-list li:last-child{border-bottom:none}
+.collapsible-body .benefits-list .icon{font-size:.9rem;flex-shrink:0}
+.collapsible-body .benefits-list .text{color:#555}
+.collapsible-body .benefits-list .text strong{color:var(--primary-dark)}
+.loading{display:none;text-align:center;padding:30px;color:var(--primary)}
+.loading.show{display:block}
+.spinner{border:2px solid var(--border);border-top:2px solid var(--primary);border-radius:50%;width:32px;height:32px;animation:spin 1s linear infinite;margin:0 auto 8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{color:#c62828;font-weight:500;padding:8px;background:#fef5f5;border:1px solid #f5c6c6;border-radius:6px;font-size:.82rem}
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.results-summary{font-size:.82rem;background:#eaf4f7;padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+.results-summary strong{color:var(--primary-dark)}
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(10,126,138,.06)}
+.result-header{padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#f7fbfc,#eef7fa);transition:background .15s}
+.result-header:hover{background:#eef7fa}
+.result-header .info{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.practice-name{font-weight:600;color:var(--primary-dark);font-size:.84rem}
+.meta{font-size:.74rem;color:#666}
+.badge{padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-ok{background:#e0f2e7;color:#2e7d32}
+.badge-err{background:#fde0e0;color:#c62828}
+.badge-info{background:#e3edf5;color:#1565c0}
+.result-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.result-card.open .result-body{max-height:8000px;overflow:auto}
+.result-body-inner{padding:10px 12px}
+table.data-table{width:100%;border-collapse:collapse;font-size:.78rem}
+table.data-table th{background:var(--primary);color:#fff;padding:6px 10px;text-align:left;position:sticky;top:0;white-space:nowrap}
+table.data-table td{padding:5px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+table.data-table tr:nth-child(even){background:#f8fbfc}
+table.data-table tr:hover{background:#eef7fa}
+.table-scroll{overflow-x:auto;max-height:350px;overflow-y:auto;border:1px solid var(--border);border-radius:4px}
+.schema-table{width:100%;border-collapse:collapse}
+.schema-table th{background:var(--primary);color:#fff;padding:5px 8px;text-align:left;font-size:.76rem}
+.schema-table td{padding:5px 8px;border-bottom:1px solid var(--border);font-size:.76rem}
+.schema-table .table-name{font-weight:600;color:var(--primary-dark)}
+.schema-table .cols{font-family:'Courier New',monospace;font-size:.72rem;color:#555}
+.diff-badge{padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:600;display:inline-block;margin:2px}
+.diff-badge-add{background:#c8e6c9;color:#2e7d32}
+.diff-badge-rem{background:#ffcdd2;color:#c62828}
+.diff-badge-chg{background:#fff9c4;color:#f57f17}
+.diff-section{margin-top:12px;padding:10px;background:#fafbfc;border:1px solid var(--border);border-radius:6px}
+.diff-section h3{font-size:.88rem;color:var(--primary-dark);margin-bottom:6px}
+select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:.76rem}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 40px;color:#888}
+.welcome .big-icon{font-size:3rem;margin-bottom:16px}
+.welcome h2{font-size:1.3rem;color:var(--primary-dark);margin-bottom:8px}
+.welcome p{max-width:400px;margin-bottom:20px;font-size:.9rem}
+.welcome .steps{display:flex;flex-direction:column;gap:8px;text-align:left;margin-top:12px}
+.welcome .step{display:flex;align-items:center;gap:10px;padding:8px 16px;background:#f7fbfc;border:1px solid var(--border);border-radius:8px;font-size:.84rem}
+.welcome .step .num{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0}
+.demo-btn{padding:8px 18px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border:none;border-radius:6px;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.12);display:inline-block;vertical-align:middle}
+.demo-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.demo-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;pointer-events:none;display:none}
+.demo-overlay.show{display:block}
+.demo-narration{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6a1b9a,#4527a0);color:#fff;padding:16px 24px 16px 20px;border-radius:14px;font-size:.95rem;line-height:1.6;box-shadow:0 8px 32px rgba(106,27,154,.4);max-width:500px;z-index:10000;pointer-events:none;display:none;transition:all .5s cubic-bezier(.4,0,.2,1)}
+.demo-narration.show{display:flex;align-items:flex-start;gap:10px}
+.demo-narration .face{font-size:1.8rem;flex-shrink:0;line-height:1}
+.demo-narration .text-area{flex:1}
+.demo-narration .step-num{font-size:.72rem;opacity:.7;margin-bottom:3px}
+.demo-narration::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#4527a0}
+.demo-highlight{position:fixed;border:4px solid #ff9800;border-radius:8px;pointer-events:none;z-index:9998;box-shadow:0 0 0 9999px rgba(0,0,0,.35);transition:all .4s ease;display:none}
+.demo-highlight.show{display:block;animation:demoPulse 1.5s ease-in-out infinite}
+@keyframes demoPulse{0%,100%{border-color:#ff9800;box-shadow:0 0 0 9999px rgba(0,0,0,.35),0 0 0 0 rgba(255,152,0,.5)}50%{border-color:#ffb74d;box-shadow:0 0 0 9999px rgba(0,0,0,.35),0 0 12px 4px rgba(255,152,0,.4)}}
+.demo-highlight-label{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:#ff9800;color:#fff;padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.demo-highlight-label::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#ff9800}
+.demo-final{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:40px;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.2);z-index:10001;text-align:center;display:none;max-width:500px}
+.demo-final.show{display:block;animation:popIn .5s ease}
+.demo-final h2{font-size:1.4rem;color:var(--primary-dark);margin-bottom:12px}
+.demo-final p{color:#666;margin-bottom:20px;line-height:1.6}
+.demo-final .link-box{padding:12px 20px;background:#f0f6f8;border:2px dashed var(--primary);border-radius:8px;font-family:'Courier New',monospace;font-size:.88rem;color:var(--primary-dark);word-break:break-all;margin-bottom:20px}
+.demo-final .copy-btn{padding:10px 24px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer}
+.demo-final .copy-btn:hover{background:var(--primary-dark)}
+.demo-close{position:fixed;top:20px;right:20px;z-index:10002;background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 16px;cursor:pointer;font-size:.82rem;color:#666;display:none}
+.demo-close.show{display:block}
+.demo-close:hover{background:#f5fafb}
+@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:translate(-50%,-50%) scale(.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.landing-page{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#065f6b 0%,#0a7e8a 30%,#14b8a6 60%,#66bb6a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;text-align:center;padding:20px;animation:slideUp .5s ease}
+.landing-page.hide{animation:fadeOut .4s ease forwards;pointer-events:none}
+.landing-page .landing-icon{font-size:4rem;margin-bottom:20px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))}
+.landing-page h1{font-size:2.4rem;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.3);margin-bottom:12px;font-weight:800}
+.landing-page .landing-desc{font-size:1.05rem;color:rgba(255,255,255,.9);max-width:520px;margin-bottom:36px;text-shadow:0 1px 4px rgba(0,0,0,.2);line-height:1.7}
+.landing-page .landing-buttons{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.landing-page .btn-landing-demo{padding:16px 36px;font-size:1.05rem;font-weight:700;color:#0a7e8a;background:#fff;border:none;border-radius:12px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:all .2s}
+.landing-page .btn-landing-demo:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.landing-page .btn-landing-enter{padding:16px 36px;font-size:1.05rem;font-weight:700;color:#fff;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5);border-radius:12px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:all .2s}
+.landing-page .btn-landing-enter:hover{background:rgba(255,255,255,.25);transform:translateY(-3px)}
+.landing-page .landing-features{display:flex;gap:12px;margin-top:40px;flex-wrap:wrap;justify-content:center}
+.landing-page .feature-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:6px 16px;font-size:.8rem;color:rgba(255,255,255,.95)}
+#mainApp{display:none}
+.section-box{background:linear-gradient(135deg,#f3e5f5,#faf0fb);border:1px solid #ce93d8;border-radius:10px;padding:12px 14px;margin-top:10px;box-shadow:0 2px 8px rgba(156,39,176,.08)}
+.section-box-query{background:linear-gradient(135deg,#e0f7fa,#e8f5f3);border:1px solid #80deea;border-radius:10px;padding:12px 14px;margin-top:10px;box-shadow:0 2px 8px rgba(10,126,138,.08)}
+.section-box-demo{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1px solid #81c784;border-radius:10px;padding:12px 14px;margin-top:10px;box-shadow:0 2px 8px rgba(67,160,71,.08)}
+.section-box-db{background:linear-gradient(135deg,#fff3e0,#fff8e1);border:1px solid #ffb74d;border-radius:10px;padding:12px 14px;margin-top:10px;box-shadow:0 2px 8px rgba(255,152,0,.08)}
+.section-label{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+@media(max-width:768px){.bottom-layout{flex-direction:column}.ref-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<div class='landing-page' id='landingPage'>
+  <div class='landing-icon'>🐾</div>
+  <h1>Vet Practice SQL Tester</h1>
+  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys, compare baselines, and keep data secure on-VM.</p>
+  <div class='landing-buttons'>
+    <button class='btn-landing-demo' onclick='enterApp(true)'>▶ Start Demo Tour</button>
+    <button class='btn-landing-enter' onclick='enterApp(false)'>Enter Tool</button>
+  </div>
+  <div class='landing-features'>
+    <span class='feature-chip'>🔒 Read-only by design</span>
+    <span class='feature-chip'>⚡ Concurrent queries</span>
+    <span class='feature-chip'>📸 Before/after baselines</span>
+    <span class='feature-chip'>🐍 Pure Python, no AI</span>
+  </div>
+</div>
+
+<div id='mainApp'>
+<div class='top-bar'>
+  <h1>Vet Practice SQL Tester</h1>
+  <button class='demo-btn' onclick='startDemoTour()'>▶ Start Demo Tour</button>
+
+  <div class='section-box-query'>
+    <div class='section-label'>📝 Query</div>
+  <div style='display:flex;gap:8px;flex-wrap:wrap'>
+    <div class='query-row'>
+      <div class='query-prefix'>SELECT</div>
+      <input type='text' class='query-input' id='queryInput' placeholder='* FROM patients LIMIT 10' value='* FROM patients LIMIT 10'>
+    </div>
+    <button class='btn btn-primary run-btn' id='runBtn' onclick='runQuery()'>Run Query</button>
+    <button class='btn btn-secondary' onclick='clearAll()'>Clear</button>
+  </div>
+  </div>
+
+  <div class='section-box'>
+    <div class='section-label'>💡 Example Queries</div>
+  <div class='examples'>
+    <button class='example-btn' onclick='setExample(this)'>* FROM patients LIMIT 10</button>
+    <button class='example-btn' onclick='setExample(this)'>name, species FROM patients WHERE species='Dog' LIMIT 20</button>
+    <button class='example-btn' onclick='setExample(this)'>COUNT(*) AS total FROM appointments GROUP BY status</button>
+    <button class='example-btn' onclick='setExample(this)'>v.first_name, v.specialization FROM veterinarians v</button>
+    <button class='example-btn' onclick='setExample(this)'>p.name, a.reason FROM patients p JOIN appointments a ON p.patient_id=a.patient_id LIMIT 15</button>
+    <button class='example-btn' onclick='setExample(this)'>i.total_amount, i.payment_status FROM invoices i WHERE i.payment_status='Overdue'</button>
+  </div>
+  </div>
+
+  <div class='section-box-demo'>
+    <div class='section-label' style='color:#2e7d32'>🧪 Test After Deploy Queries</div>
+    <span style='font-size:.7rem;color:#666;margin-bottom:6px;display:block'>Save a green baseline, run the matching red, compare:</span>
+    <div style='display:flex;flex-direction:column;gap:4px'>
+    <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 8</button>
+    <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (values changed): patient_id, owner_id, name, species, breed, birth_date, gender, weight_kg+1 as weight_kg, microchip_id, status FROM patients LIMIT 8</button>
+    <button class='example-btn' style='background:#e0f2e7;border-color:#a5d6a7;color:#2e7d32;display:block;text-align:left;width:100%' onclick='setExample(this)'>Before deploy: * FROM patients LIMIT 5</button>
+    <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828;display:block;text-align:left;width:100%' onclick='setExample(this)'>After deploy (rows added): * FROM patients LIMIT 8</button>
+    </div>
+  </div>
+
+  <div class='section-box-db'>
+    <div class='section-label' style='color:#e65100'>🗄 Databases</div>
+    <div class='db-controls'>
+      <button class='btn btn-secondary btn-sm' onclick='selectAllDbs(true)'>All</button>
+      <button class='btn btn-secondary btn-sm' onclick='selectAllDbs(false)'>None</button>
+      <span id='dbCount'>10 selected</span>
+    </div>
+    <div class='db-list'>
+      {% for p in practices %}
+      <div class='db-item' onclick='toggleDb(this, "{{ p.id }}")'>
+        <input type='checkbox' class='db-checkbox' data-pid='{{ p.id }}' checked onclick='event.stopPropagation()' onchange='updateDbCount()'>
+        <span class='db-name'>{{ p.name }}</span> <span class='db-loc'>{{ p.city }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class='bottom-layout'>
+  <div class='ref-sidebar'>
+    <div class='collapsible open' id='security-card'>
+      <div class='collapsible-header' onclick='toggleCard("security-card")'>🔒 Security Demo <span class='toggle-icon'>&#9660;</span></div>
+      <div class='collapsible-body'>
+        <p style='font-size:.74rem;color:#666;margin-bottom:8px'>Three layers of protection:<br>1. SELECT is hardcoded<br>2. 20+ forbidden keywords blocked<br>3. Databases open in read-only mode<br><br>Try to break it:</p>
+        <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828' onclick='tryBreak("DELETE FROM patients")'>DELETE FROM patients</button>
+        <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828' onclick='tryBreak("UPDATE patients SET name = hacked")'>UPDATE patients SET...</button>
+        <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828' onclick='tryBreak("INSERT INTO patients VALUES (null, 1, test, Dog)")'>INSERT INTO patients</button>
+        <button class='example-btn' style='background:#fde0e0;border-color:#f5c6c6;color:#c62828' onclick='tryBreak("DROP TABLE patients")'>DROP TABLE patients</button>
+      </div>
+    </div>
+
+    <div class='collapsible' id='schema-card'>
+      <div class='collapsible-header' onclick='toggleCard("schema-card")'>Schema Reference <span class='toggle-icon'>&#9660;</span></div>
+      <div class='collapsible-body'>
+        <table class='schema-table'>
+          <thead><tr><th>Table</th><th>Columns</th></tr></thead>
+          <tbody>
+          {% for table, cols in schema.items() %}
+            <tr><td class='table-name'>{{ table }}</td><td class='cols'>{{ cols | join(', ') }}</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class='collapsible' id='why-card'>
+      <div class='collapsible-header' onclick='toggleCard("why-card")'>Why This Tool <span class='toggle-icon'>&#9660;</span></div>
+      <div class='collapsible-body'>
+        <ul class='benefits-list'>
+          <li><span class='icon'>🔒</span><span class='text'><strong>Data stays on VM</strong> - runs locally, no cloud upload.</span></li>
+          <li><span class='icon'>🐍</span><span class='text'><strong>Python, not AI</strong> - no AI agreements, no third parties.</span></li>
+          <li><span class='icon'>✅</span><span class='text'><strong>Deploy verification</strong> - secondary read-only check.</span></li>
+          <li><span class='icon'>📊</span><span class='text'><strong>Volume testing</strong> - query real data from backend.</span></li>
+          <li><span class='icon'>👥</span><span class='text'><strong>Reduces manual error</strong> - one query, all databases.</span></li>
+          <li><span class='icon'>🤖</span><span class='text'><strong>Hands-off testing</strong> - tester verifies independently.</span></li>
+          <li><span class='icon'>📸</span><span class='text'><strong>Before/after baselines</strong> - save pre-deploy, compare post.</span></li>
+          <li><span class='icon'>⚡</span><span class='text'><strong>Concurrent queries</strong> - all 10 in milliseconds.</span></li>
+          <li><span class='icon'>🛡️</span><span class='text'><strong>Read-only by design</strong> - SELECT hardcoded.</span></li>
+          <li><span class='icon'>🔗</span><span class='text'><strong>Shareable demo</strong> - show stakeholders the concept.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='collapsible' id='install-card'>
+      <div class='collapsible-header' onclick='toggleCard("install-card")'>💻 System Requirements & Azure VM Install <span class='toggle-icon'>&#9660;</span></div>
+      <div class='collapsible-body'>
+        <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:6px 0 4px'>System Requirements (Azure Windows VM)</p>
+        <table class='schema-table'>
+          <thead><tr><th>Component</th><th>Minimum</th></tr></thead>
+          <tbody>
+            <tr><td class='table-name'>Azure VM</td><td class='cols'>B1s (1 vCPU, 1GB RAM)</td></tr>
+            <tr><td class='table-name'>OS Image</td><td class='cols'>Windows Server 2019+ (Azure Marketplace)</td></tr>
+            <tr><td class='table-name'>Python</td><td class='cols'>3.8+ (download from python.org)</td></tr>
+            <tr><td class='table-name'>Disk (C:)</td><td class='cols'>30GB — standard OS drive</td></tr>
+            <tr><td class='table-name'>Disk (baselines)</td><td class='cols'>~50KB each — just a folder on C:</td></tr>
+            <tr><td class='table-name'>Network/NSG</td><td class='cols'>RDP (3389) for admin, app on localhost:8000</td></tr>
+          </tbody>
+        </table>
+        <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Where Baselines Are Stored</p>
+        <p style='font-size:.72rem;color:#555'>JSON files in a folder on the C: drive. Default:<br><code>C:\vet-sql-tester\baselines\</code><br>Just a normal Windows folder — survives reboots, stays on the C: drive. If the VM gets rebuilt, copy the baselines folder first or point VET_BASELINE_DIR to a D: drive (Azure data disk).</p>
+        <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Install Steps (RDP into Azure VM)</p>
+        <p style='font-size:.72rem;color:#555;font-family:monospace;white-space:pre;line-height:1.8'>1. Install Python 3.11 from python.org
+   Check "Add Python to PATH"
+2. Create folder: C:\vet-sql-tester\
+   Create subfolder: C:\vet-sql-tester\baselines\
+3. Copy app files (app.py, app.yaml,
+   requirements.txt, data_generator.py,
+   templates\index.html) into C:\vet-sql-tester\
+4. Open Command Prompt:
+   cd C:\vet-sql-tester
+   pip install flask pyodbc
+   # pyodbc for SQL Server
+5. python app.py
+   → open http://localhost:8000 in browser</p>
+        <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Auto-Start on Reboot (NSSM Windows Service)</p>
+        <p style='font-size:.72rem;color:#555;font-family:monospace;white-space:pre;line-height:1.8'>1. Download nssm from nssm.cc
+2. Open admin Command Prompt:
+   nssm install VetSqlTester
+   → Set Application Path: C:\vet-sql-tester\app.py
+   → Set Startup Dir: C:\vet-sql-tester
+   → Set Environment: VET_BASELINE_DIR=C:\vet-sql-tester\baselines
+   nssm start VetSqlTester
+
+App now starts automatically when the VM boots.</p>
+        <p style='font-size:.72rem;font-weight:700;color:var(--primary-dark);margin:10px 0 4px'>Production Mode (SQL Server on VM)</p>
+        <p style='font-size:.72rem;color:#555'>Edit run_query_on_db() in app.py to connect to your real SQL Server database. Use pyodbc with ApplicationIntent=ReadOnly in the connection string. Data never leaves the VM — no cloud upload, no AI, no Azure Blob storage. Everything stays in folders on C:.</p>
+      </div>
+    </div>
+  </div>
+    <div class='welcome' id='welcomeState'>
+      <div class='big-icon'>🐾</div>
+      <h2>Vet Practice SQL Tester</h2>
+      <p>Run SELECT queries across 10 veterinary practice databases simultaneously. Verify deploys, reduce manual error, and keep data secure on-VM.</p>
+      <div class='steps'>
+        <div class='step'><div class='num'>1</div>Type a query (SELECT is already provided)</div>
+        <div class='step'><div class='num'>2</div>Choose which databases to query</div>
+        <div class='step'><div class='num'>3</div>Click Run Query — all databases execute concurrently</div>
+        <div class='step'><div class='num'>4</div>Save a baseline before deploying, then compare after</div>
+      </div>
+      <p style='margin-top:16px;font-size:.8rem;color:#aaa'>Or click <strong>Start Demo Tour</strong> to see it in action</p>
+    </div>
+    <div class='loading' id='loading'>
+      <div class='spinner'></div>
+      <p>Running query across selected databases...</p>
+    </div>
+    <div id='errorBanner' style='display:none;margin-bottom:16px'></div>
+    <div id='resultsArea' style='display:none'>
+      <div class='results-header'>
+        <div class='results-summary' id='resultsSummary'></div>
+        <div style='display:flex;gap:6px;flex-wrap:wrap;align-items:center'>
+          <button class='btn btn-success btn-sm' onclick='downloadAll()'>Download All</button>
+          <button class='btn btn-secondary btn-sm' id='saveBaselineBtn' onclick='saveBaseline()'>Save Baseline</button>
+          <select id='baselineSelect' onchange='loadBaseline()'><option value=''>Load Baseline...</option></select>
+          <button class='btn btn-secondary btn-sm' id='compareBaselineBtn' onclick='compareWithBaseline()' style='display:none'>Compare</button>
+          <button class='btn btn-secondary btn-sm' onclick='manageBaselines()'>🗑 Clear</button>
+        </div>
+      </div>
+      <div id='diffArea' style='display:none;margin-bottom:12px'></div>
+      <div id='resultsContainer'></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class='demo-overlay' id='demoOverlay'></div>
+<div class='demo-narration' id='demoNarration'></div>
+<div class='demo-highlight' id='demoHighlight'></div>
+<div class='demo-final' id='demoFinal'></div>
+<button class='demo-close' id='demoClose' onclick='stopDemoTour()'>✕ Stop Demo</button>
+
+<script>
+let lastResults = null;
+function enterApp(startDemo){
+  var landing=document.getElementById('landingPage');
+  landing.classList.add('hide');
+  setTimeout(function(){
+    landing.style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    if(startDemo) setTimeout(function(){startDemoTour()},300);
+  },400);
+}
+
+function toggleCard(id){document.getElementById(id).classList.toggle('open')}
+function setExample(btn){
+  let t = btn.textContent;
+  if(t.startsWith('Before deploy:') || t.startsWith('After deploy')) t = t.substring(t.indexOf(': ') + 2);
+  document.getElementById('queryInput').value = t;
+}
+function tryBreak(q){document.getElementById('queryInput').value=q;runQuery()}
+function clearAll(){document.getElementById('queryInput').value='';document.getElementById('resultsArea').style.display='none';document.getElementById('errorBanner').style.display='none';document.getElementById('diffArea').style.display='none';var w=document.getElementById('welcomeState');if(w)w.style.display='flex';lastResults=null}
+
+function getSelectedDbs(){
+  return Array.from(document.querySelectorAll('.db-checkbox:checked')).map(cb => cb.dataset.pid);
+}
+function selectAllDbs(val){
+  document.querySelectorAll('.db-checkbox').forEach(cb => {cb.checked = val});
+  updateDbCount();
+}
+function toggleDb(item, pid){
+  const cb = item.querySelector('.db-checkbox');
+  cb.checked = !cb.checked;
+  updateDbCount();
+}
+function updateDbCount(){
+  const n = document.querySelectorAll('.db-checkbox:checked').length;
+  document.getElementById('dbCount').textContent = n + ' selected';
+}
+
+async function runQuery(){
+  const q = document.getElementById('queryInput').value.trim();
+  if(!q){alert('Please enter a query.');return}
+  const selected = getSelectedDbs();
+  if(selected.length === 0){alert('Please select at least one database.');return}
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  document.getElementById('loading').classList.add('show');
+  var w=document.getElementById('welcomeState');if(w)w.style.display='none';
+  document.getElementById('errorBanner').style.display='none';
+  document.getElementById('resultsArea').style.display='none';
+  document.getElementById('diffArea').style.display='none';
+  try{
+    const resp = await fetch('/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q, databases:selected})});
+    const data = await resp.json();
+    if(data.error){
+      const eb = document.getElementById('errorBanner');
+      eb.innerHTML = '<div class=error-msg>' + data.error + '</div>';
+      eb.style.display='block';
+      return;
+    }
+    lastResults = data;
+    renderResults(data);
+  } catch(e){
+    const eb = document.getElementById('errorBanner');
+    eb.innerHTML = '<div class=error-msg>Request failed: ' + e.message + '</div>';
+    eb.style.display='block';
+  } finally {
+    btn.disabled = false;
+    document.getElementById('loading').classList.remove('show');
+  }
+}
+
+function renderResults(data){
+  document.getElementById('resultsArea').style.display='block';
+  document.getElementById('resultsSummary').innerHTML =
+    '<strong>' + data.total_databases + '</strong> databases &middot; <strong>' + data.total_rows + '</strong> total rows &middot; <strong>' + data.total_time_ms + ' ms</strong> wall time &middot; Query: <code>' + data.query + '</code>';
+  const container = document.getElementById('resultsContainer');
+  container.innerHTML = '';
+  data.results.forEach((r, idx) => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    let badge = r.error ? '<span class=badge-err>Error</span>' : '<span class=badge-ok>' + r.row_count + ' rows</span>';
+    let timeBadge = r.execution_time_ms > 0 ? '<span class=badge-info>' + r.execution_time_ms + ' ms</span>' : '';
+    let bodyContent = '';
+    if(r.error){
+      bodyContent = '<div class=error-msg>' + r.error + '</div>';
+    } else if(r.row_count === 0){
+      bodyContent = '<p style=color:#999;padding:12px>No rows returned.</p>';
+    } else {
+      let tableHTML = '<div class=table-scroll><table class=data-table><thead><tr>';
+      r.columns.forEach(c => {tableHTML += '<th>' + c + '</th>'});
+      tableHTML += '</tr></thead><tbody>';
+      r.rows.forEach(row => {
+        tableHTML += '<tr>';
+        r.columns.forEach(c => {
+          let val = row[c];
+          if(val === null) val = '<span style=color:#ccc>NULL</span>';
+          tableHTML += '<td>' + val + '</td>';
+        });
+        tableHTML += '</tr>';
+      });
+      tableHTML += '</tbody></table></div>';
+      bodyContent = tableHTML + '<div style=margin-top:10px><button class=btn btn-secondary btn-sm onclick=downloadOne("' + r.practice_id + '")>Download ' + r.practice_name + ' (CSV)</button></div>';
+    }
+    card.innerHTML = '<div class=result-header onclick=this.parentElement.classList.toggle("open")><div class=info><span class=practice-name>' + r.practice_name + '</span><span class=meta>' + r.city + ', ' + r.state + '</span>' + badge + ' ' + timeBadge + '</div><span class=toggle-icon>&#9660;</span></div><div class=result-body><div class=result-body-inner>' + bodyContent + '</div></div>';
+    container.appendChild(card);
+  });
+}
+
+function escapeCSV(val){
+  if(val === null || val === undefined) return '';
+  let s = String(val);
+  if(s.includes(',') || s.includes('"') || s.includes('\n')){s = '"' + s.replace(/"/g,'""') + '"'}
+  return s;
+}
+
+function downloadOne(practiceId){
+  if(!lastResults) return;
+  const r = lastResults.results.find(x => x.practice_id === practiceId);
+  if(!r || !r.columns.length) return;
+  let csv = r.columns.map(escapeCSV).join(',') + '\n';
+  r.rows.forEach(row => {csv += r.columns.map(c => escapeCSV(row[c])).join(',') + '\n'});
+  triggerDownload(csv, practiceId + '_results.csv');
+}
+
+function downloadAll(){
+  if(!lastResults) return;
+  let csv = '';
+  let hasData = false;
+  lastResults.results.forEach(r => {
+    if(r.error || !r.columns.length) return;
+    hasData = true;
+    csv += '# ' + r.practice_name + ' (' + r.practice_id + ')\n';
+    csv += r.columns.map(escapeCSV).join(',') + '\n';
+    r.rows.forEach(row => {csv += r.columns.map(c => escapeCSV(row[c])).join(',') + '\n'});
+    csv += '\n';
+  });
+  if(!hasData){alert('No data to download.');return}
+  triggerDownload(csv, 'all_databases_results.csv');
+}
+
+function triggerDownload(content, filename){
+  const blob = new Blob([content], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('queryInput').addEventListener('keydown', e => {if(e.key === 'Enter') runQuery()});
+
+// ---- Baseline comparison (server-side storage on VM disk) ----
+let baseline = null;
+
+async function saveBaseline(){
+  if(!lastResults){alert('Run a query first.');return}
+  const name = prompt('Enter a name for this baseline:', 'pre_deploy_' + new Date().toISOString().slice(0,16).replace(/:/g,'-'));
+  if(!name) return;
+  try{
+    const resp = await fetch('/baseline/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name, data:lastResults})});
+    const result = await resp.json();
+    if(result.error){alert('Error: ' + result.error);return}
+    alert('Baseline saved: ' + result.name + '\n' + lastResults.total_databases + ' databases, ' + lastResults.total_rows + ' rows.\nStored at: ' + result.path);
+    refreshBaselineList();
+  }catch(e){alert('Save failed: ' + e.message)}
+}
+
+async function loadBaseline(){
+  const sel = document.getElementById('baselineSelect');
+  const name = sel.value;
+  if(!name) return;
+  try{
+    const resp = await fetch('/baseline/load?name=' + encodeURIComponent(name));
+    const result = await resp.json();
+    if(result.error){alert('Error: ' + result.error);return}
+    baseline = result.data;
+    document.getElementById('compareBaselineBtn').style.display='inline-block';
+    alert('Loaded baseline: ' + result.name + '\nQuery: ' + baseline.query + '\n' + baseline.total_databases + ' databases, ' + baseline.total_rows + ' rows\nNow run the same query and click Compare.');
+  }catch(e){alert('Load failed: ' + e.message)}
+}
+
+async function refreshBaselineList(){
+  try{
+    const resp = await fetch('/baseline/list');
+    const result = await resp.json();
+    const sel = document.getElementById('baselineSelect');
+    sel.innerHTML = '<option value="">Load Baseline...</option>';
+    if(result.baselines && result.baselines.length > 0){
+      result.baselines.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.name;
+        const kb = (b.size_bytes/1024).toFixed(1);
+        const dt = new Date(b.modified*1000).toLocaleString();
+        opt.textContent = b.name + ' (' + kb + 'KB, ' + dt + ')';
+        sel.appendChild(opt);
+      });
+    }
+  }catch(e){}
+}
+
+function compareWithBaseline(){
+  if(!baseline){alert('Load a baseline first using the dropdown.');return}
+  if(!lastResults){alert('Run a query first, then click Compare.');return}
+  renderDiff(baseline, lastResults);
+}
+
+function renderDiff(base, curr){
+  const diffArea = document.getElementById('diffArea');
+  diffArea.style.display='block';
+  let html = '<div class=diff-section><h3>Baseline Comparison Results</h3>';
+  let totalAdded=0, totalRemoved=0, totalChanged=0, totalIdentical=0, totalValueChanged=0;
+  base.results.forEach(b => {
+    const c = curr.results.find(x => x.practice_id === b.practice_id);
+    if(!c){
+      html += '<p class=error-msg>Database ' + b.practice_name + ' was in baseline but not in current results.</p>';
+      return;
+    }
+    let detail = '';
+    let badges = '';
+    let added=0, removed=0, valueChanged=0;
+    if(b.error || c.error){
+      badges += '<span class=diff-badge-err>ERROR</span> ';
+      if(b.error) detail += '<div class=error-msg>Baseline error: ' + b.error + '</div>';
+      if(c.error) detail += '<div class=error-msg>Current error: ' + c.error + '</div>';
+    } else {
+      const baseSet = new Set(b.rows.map(r => JSON.stringify(r)));
+      const currSet = new Set(c.rows.map(r => JSON.stringify(r)));
+      const addedRows = c.rows.filter(r => !baseSet.has(JSON.stringify(r)));
+      const removedRows = b.rows.filter(r => !currSet.has(JSON.stringify(r)));
+      added = addedRows.length;
+      removed = removedRows.length;
+      if(added === 0 && removed === 0){
+        totalIdentical++;
+        badges += '<span class=diff-badge-add>IDENTICAL</span>';
+      } else {
+        totalChanged++;
+        if(added > 0) badges += '<span class=diff-badge-add>+' + added + ' new rows</span> ';
+        if(removed > 0) badges += '<span class=diff-badge-rem>-' + removed + ' changed rows</span> ';
+        if(b.rows.length === c.rows.length && b.columns.length === c.columns.length){
+          let changeTableHTML = '';
+          for(let i=0; i<b.rows.length; i++){
+            const br = b.rows[i], cr = c.rows[i];
+            let rowChanged = false;
+            let rowHTML = '<tr><td style=color:#999>' + (i+1) + '</td>';
+            for(let ci=0; ci<b.columns.length; ci++){
+              const bCol = b.columns[ci], cCol = c.columns[ci];
+              const bVal = br[bCol], cVal = cr[cCol];
+              if(String(bVal) !== String(cVal)){
+                rowChanged = true;
+                rowHTML += '<td style=background:#fff3e0><span style=color:#c62828;text-decoration:line-through>' + String(bVal).substring(0,40) + '</span><br><span style=color:#2e7d32;font-weight:600>' + String(cVal).substring(0,40) + '</span></td>';
+              } else {
+                rowHTML += '<td>' + String(bVal).substring(0,40) + '</td>';
+              }
+            }
+            if(rowChanged){
+              valueChanged++;
+              if(changeTableHTML.length < 5000) changeTableHTML += rowHTML + '</tr>';
+            }
+          }
+          if(valueChanged > 0){
+            totalValueChanged += valueChanged;
+            badges += '<span class=diff-badge-chg>' + valueChanged + ' rows with data changes</span> ';
+            let headerHTML = '<tr><th>#</th>';
+            b.columns.forEach(col => {headerHTML += '<th>' + col + '</th>'});
+            detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#f57f17">Changed rows (old struck through, new in green):</p>';
+            detail += '<div class=table-scroll style=max-height:300px;margin-top:4px><table class=data-table><thead>' + headerHTML + '</tr></thead><tbody>' + changeTableHTML + '</tbody></table></div>';
+          }
+        }
+        if(addedRows.length > 0){
+          let addTableHTML = '<tr>';
+          c.columns.forEach(col => {addTableHTML += '<th>' + col + '</th>'});
+          addTableHTML += '</tr>';
+          addedRows.forEach(r => {
+            addTableHTML += '<tr style=background:#e8f5e9>';
+            c.columns.forEach(col => {
+              let v = r[col];
+              if(v === null) v = '<span style=color:#ccc>NULL</span>';
+              addTableHTML += '<td>' + String(v).substring(0,40) + '</td>';
+            });
+            addTableHTML += '</tr>';
+          });
+          detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#2e7d32">Added rows (' + addedRows.length + '):</p>';
+          detail += '<div class=table-scroll style=max-height:250px;margin-top:4px><table class=data-table><thead>' + addTableHTML + '</thead><tbody>' + addTableHTML + '</tbody></table></div>';
+        }
+        if(removedRows.length > 0){
+          let remTableHTML = '<tr>';
+          b.columns.forEach(col => {remTableHTML += '<th>' + col + '</th>'});
+          remTableHTML += '</tr>';
+          removedRows.forEach(r => {
+            remTableHTML += '<tr style=background:#ffebee>';
+            b.columns.forEach(col => {
+              let v = r[col];
+              if(v === null) v = '<span style=color:#ccc>NULL</span>';
+              remTableHTML += '<td>' + String(v).substring(0,40) + '</td>';
+            });
+            remTableHTML += '</tr>';
+          });
+          detail += '<p style="font-size:.76rem;font-weight:600;margin:8px 0 4px;color:#c62828">Removed rows (' + removedRows.length + '):</p>';
+          detail += '<div class=table-scroll style=max-height:250px;margin-top:4px><table class=data-table><thead>' + remTableHTML + '</thead><tbody>' + remTableHTML + '</tbody></table></div>';
+        }
+      }
+    }
+    totalAdded += added; totalRemoved += removed;
+    html += '<div style="margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:6px"><strong>' + b.practice_name + '</strong> (' + b.city + ', ' + b.state + ') ' + badges + '<br><span class=meta>Baseline: ' + b.row_count + ' rows | Current: ' + c.row_count + ' rows</span>' + detail + '</div>';
+  });
+  curr.results.forEach(c => {
+    if(!base.results.find(x => x.practice_id === c.practice_id)){
+      totalAdded += c.row_count;
+      html += '<div style="margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:6px"><strong>' + c.practice_name + '</strong> <span class=diff-badge-add>NEW DATABASE</span><br><span class=meta>Current: ' + c.row_count + ' rows</span></div>';
+    }
+  });
+  html += '<div style="margin-top:12px;padding:12px;background:#eaf4f7;border-radius:6px">';
+  html += '<strong>Summary:</strong> ';
+  if(totalIdentical > 0) html += '<span class=diff-badge-add>' + totalIdentical + ' identical</span> ';
+  if(totalValueChanged > 0) html += '<span class=diff-badge-chg>' + totalValueChanged + ' rows with data changes</span> ';
+  if(totalAdded > 0) html += '<span class=diff-badge-add>' + totalAdded + ' rows added</span> ';
+  if(totalRemoved > 0) html += '<span class=diff-badge-rem>' + totalRemoved + ' rows changed/removed</span> ';
+  if(totalChanged > 0) html += '<span class=diff-badge-chg>' + totalChanged + ' databases with changes</span> ';
+  if(totalChanged === 0) html += '<span class=diff-badge-add>NO CHANGES - Deploy verified!</span>';
+  html += '</div></div>';
+  diffArea.innerHTML = html;
+  diffArea.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+refreshBaselineList();
+
+// ---- Clear baselines to save storage ----
+async function manageBaselines(){
+  try{
+    const resp = await fetch('/baseline/list');
+    const result = await resp.json();
+    if(!result.baselines || result.baselines.length === 0){
+      alert('No saved baselines to clear.');
+      return;
+    }
+    let items = result.baselines.map(b => {
+      const kb = (b.size_bytes/1024).toFixed(1);
+      const dt = new Date(b.modified*1000).toLocaleString();
+      return '<tr><td style="padding:4px 8px;font-weight:600">' + b.name + '</td><td style="padding:4px 8px;color:#666">' + kb + ' KB</td><td style="padding:4px 8px;color:#999">' + dt + '</td><td style="padding:4px 8px"><button class="btn btn-secondary btn-sm" style="background:#fde0e0;color:#c62828" onclick="deleteBaseline(\'' + b.name + '\')">Delete</button></td></tr>';
+    }).join('');
+    const totalKB = (result.baselines.reduce((s,b) => s + b.size_bytes, 0) / 1024).toFixed(1);
+    const f = document.getElementById('demoFinal');
+    f.innerHTML = '<h2>🗑 Manage Baselines</h2>' +
+      '<p style="font-size:.82rem;color:#666;margin-bottom:12px">Storage location: <code>' + result.storage_dir + '</code><br>Total: ' + result.baselines.length + ' baselines, ' + totalKB + ' KB</p>' +
+      '<div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;margin-bottom:16px"><table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr style="background:var(--primary);color:#fff"><th style="padding:6px 8px;text-align:left">Name</th><th style="padding:6px 8px;text-align:left">Size</th><th style="padding:6px 8px;text-align:left">Date</th><th style="padding:6px 8px"></th></tr></thead><tbody>' + items + '</tbody></table></div>' +
+      '<button class="btn btn-secondary" style="width:100%;margin-bottom:8px;padding:10px;background:#fde0e0;color:#c62828" onclick="deleteAllBaselines()">Delete All (' + result.baselines.length + ' baselines, ' + totalKB + ' KB)</button>' +
+      '<button class="btn btn-primary" style="width:100%;padding:10px" onclick="closeManageBaselines()">Close</button>';
+    f.classList.add('show');
+  }catch(e){alert('Failed to load baselines: ' + e.message)}
+}
+
+async function deleteBaseline(name){
+  if(!confirm('Delete baseline "' + name + '"?')) return;
+  try{
+    const resp = await fetch('/baseline/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name})});
+    const result = await resp.json();
+    if(result.error){alert('Error: ' + result.error);return}
+    refreshBaselineList();
+    manageBaselines();
+  }catch(e){alert('Delete failed: ' + e.message)}
+}
+
+async function deleteAllBaselines(){
+  if(!confirm('Delete ALL saved baselines? This frees up disk space and cannot be undone.')) return;
+  try{
+    const resp = await fetch('/baseline/delete-all',{method:'POST'});
+    const result = await resp.json();
+    if(result.error){alert('Error: ' + result.error);return}
+    const kb = (result.freed_bytes/1024).toFixed(1);
+    alert('Deleted ' + result.count + ' baselines, freed ' + kb + ' KB.');
+    refreshBaselineList();
+    closeManageBaselines();
+  }catch(e){alert('Delete failed: ' + e.message)}
+}
+
+function closeManageBaselines(){
+  document.getElementById('demoFinal').classList.remove('show');
+}
+// ---- Demo Tour with narration ----
+let demoTimer = null;
+let demoStep = 0;
+const APP_URL = window.location.origin;
+const demoSteps = [
+  {text:'Welcome to the Vet Practice SQL Tester. This tool runs SELECT queries across single or multiple veterinary practice databases simultaneously — all from a single screen.', delay:8000, target:null},
+  {text:'Type your query here. SELECT is already provided. Let me run a query to show you.', delay:7000, action:'typeQuery1', target:'#queryInput'},
+  {text:'Run Query sends the same query to all selected databases at once. Results appear in milliseconds...', delay:6000, action:'clickRun', target:'.run-btn'},
+  {text:'Results appear for each database as collapsed panels — just the practice name, row count, and execution time. All queried concurrently.', delay:9000, action:'scrollResults', target:'#resultsContainer'},
+  {text:'Watch — I will click this panel to expand it and see the actual data...', delay:6000, action:'expandDemo', target:'.result-card'},
+  {text:'Now you can see the full data table. Click again to collapse it back — this keeps the view clean when you have many databases.', delay:8000, action:'collapseDemo', target:'.result-card'},
+  {text:'You can also use this as a test-after-deploy tool. Save a baseline now, then after your deploy, run the same query and compare to see exactly what changed.', delay:8000, action:'saveBaselineDemo', target:'#saveBaselineBtn'},
+  {text:'Baseline saved. Now let me simulate a data change by running a slightly different query — as if the data had been updated after a deploy.', delay:9000, action:'typeQuery2', target:'#queryInput'},
+  {text:'Running the same query again, but this time the data has changed...', delay:7000, action:'clickRun2', target:'.run-btn'},
+  {text:'Now load the baseline and compare to see the differences.', delay:8000, action:'compareDemo', target:'#baselineSelect'},
+  {text:'The comparison highlights added rows, removed rows, and value changes per database — so you can confirm your deploy worked, or catch if you missed a database.', delay:12000, action:'scrollDiff', target:'#diffArea'},
+  {text:'You can also select which databases to target — query all of them, just one, or a specific subset. Useful when you only deployed to certain practices and want to verify just those.', delay:8000, action:'pointDbs', target:'.section-box-db'},
+  {text:'Let me prove it is read-only. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
+  {text:'BLOCKED. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode. No data can be modified through this tool.', delay:10000, action:null, target:'#security-card'},
+  {text:'Data never leaves the VM. Pure Python, no AI, no data processing agreements. Zero risk to production data.', delay:8000, action:null, target:'#security-card'},
+  {text:'Here is the link. Hand it over and try it yourself.', delay:0, action:'showFinal', target:null}
+];
+function startDemoTour(){
+  demoStep = 0;
+  document.getElementById('demoClose').classList.add('show');
+  document.getElementById('demoOverlay').classList.add('show');
+  showDemoStep();
+}
+function showDemoStep(){
+  if(demoStep >= demoSteps.length){stopDemoTour();return}
+  clearHighlight();
+  const step = demoSteps[demoStep];
+  const nar = document.getElementById('demoNarration');
+  nar.innerHTML = '<div class="face">🤖</div><div class="text-area"><div class="step-num">Step ' + (demoStep+1) + ' of ' + demoSteps.length + '</div>' + step.text + '</div>';
+  nar.classList.add('show');
+  const highlightActions = ['typeQuery1','clickRun','scrollResults','expandDemo','collapseDemo','saveBaselineDemo','typeQuery2','clickRun2','compareDemo','scrollDiff','pointDbs','tryDelete'];
+  if(highlightActions.includes(step.action) && step.target){
+    const el = document.querySelector(step.target);
+    if(el){
+      const rect = el.getBoundingClientRect();
+      const narWidth = 480;
+      let x = rect.left + rect.width / 2 - narWidth / 2;
+      x = Math.max(10, Math.min(x, window.innerWidth - narWidth - 10));
+      let y = rect.bottom + 16;
+      if(y + 120 > window.innerHeight) y = Math.max(20, rect.top - 120);
+      nar.style.left = x + 'px';
+      nar.style.top = y + 'px';
+      nar.style.bottom = 'auto';
+      nar.style.right = 'auto';
+      nar.style.transform = 'none';
+    }
+  } else {
+    positionNarration(step.target);
+  }
+  if(step.action) executeDemoAction(step.action);
+  if(step.delay > 0){
+    demoTimer = setTimeout(() => {
+      document.getElementById('demoNarration').classList.remove('show');
+      setTimeout(() => {demoStep++; showDemoStep()}, 400);
+    }, step.delay);
+  }
+}
+function executeDemoAction(action){
+  switch(action){
+    case 'typeQuery1':
+      highlightElement('#queryInput', 'Type your query here');
+      document.getElementById('queryInput').value = '';
+      document.getElementById('queryInput').focus();
+      typeText('queryInput', '* FROM patients LIMIT 8', 30);
+      break;
+    case 'clickRun':
+      highlightElement('.run-btn', 'Click Run Query');
+      setTimeout(() => runQuery(), 500);
+      break;
+    case 'scrollResults':
+      setTimeout(() => {
+        const rc = document.getElementById('resultsContainer');
+        if(rc) rc.scrollIntoView({behavior:'smooth', block:'start'});
+        highlightElement('#resultsContainer', 'Results from all databases');
+      }, 500);
+      break;
+    case 'expandDemo':
+      setTimeout(() => {
+        const cards = document.querySelectorAll('.result-card');
+        if(cards.length >= 1){
+          highlightElement('.result-card', 'Click to expand');
+          setTimeout(() => {
+            cards[0].classList.add('open');
+          }, 2000);
+        }
+      }, 500);
+      break;
+    case 'collapseDemo':
+      setTimeout(() => {
+        const cards = document.querySelectorAll('.result-card');
+        if(cards.length >= 1){
+          highlightElement('.result-card', 'Click to collapse');
+          setTimeout(() => {
+            cards[0].classList.remove('open');
+          }, 2000);
+        }
+      }, 500);
+      break;
+    case 'saveBaselineDemo':
+      highlightElement('#saveBaselineBtn', 'Test after deploy');
+      setTimeout(async () => {
+        if(!lastResults) return;
+        try{
+          const resp = await fetch('/baseline/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'demo_baseline', data:lastResults})});
+          const result = await resp.json();
+          if(!result.error){refreshBaselineList();}
+        }catch(e){}
+      }, 2000);
+      break;
+    case 'typeQuery2':
+      highlightElement('#queryInput', 'Type the changed query');
+      document.getElementById('queryInput').value = '';
+      document.getElementById('queryInput').focus();
+      typeText('queryInput', 'patient_id, owner_id, name, species, breed, birth_date, gender, weight_kg+1 as weight_kg, microchip_id, status FROM patients LIMIT 8', 20);
+      break;
+    case 'clickRun2':
+      highlightElement('.run-btn', 'Run the changed query');
+      setTimeout(() => runQuery(), 500);
+      break;
+    case 'compareDemo':
+      highlightElement('#baselineSelect', 'Load Baseline then Compare');
+      setTimeout(async () => {
+        const sel = document.getElementById('baselineSelect');
+        for(let i=0; i<sel.options.length; i++){
+          if(sel.options[i].value === 'demo_baseline'){sel.selectedIndex = i;break;}
+        }
+        if(!sel.value) return;
+        try{
+          const resp = await fetch('/baseline/load?name=' + encodeURIComponent(sel.value));
+          const result = await resp.json();
+          if(result.error) return;
+          baseline = result.data;
+          document.getElementById('compareBaselineBtn').style.display='inline-block';
+          if(lastResults){renderDiff(baseline, lastResults);}
+        }catch(e){}
+      }, 2000);
+      break;
+    case 'scrollDiff':
+      setTimeout(() => {
+        const da = document.getElementById('diffArea');
+        if(da) da.scrollIntoView({behavior:'smooth', block:'start'});
+        highlightElement('#diffArea', 'Comparison results');
+      }, 500);
+      break;
+    case 'pointDbs':
+      highlightElement('.section-box-db', 'Select Databases');
+      break;
+    case 'tryDelete':
+      highlightElement('#security-card', 'Security Demo');
+      setTimeout(() => tryBreak('DELETE FROM patients'), 1500);
+      break;
+    case 'showFinal':
+      showDemoFinal();
+      break;
+  }
+}
+function typeText(elemId, text, speed){
+  const elem = document.getElementById(elemId);
+  let i = 0;
+  function type(){
+    if(i < text.length){elem.value += text.charAt(i); i++; setTimeout(type, speed)}
+  }
+  type();
+}
+function highlightElement(selector, label){
+  const el = document.querySelector(selector);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(() => {
+    const rect = el.getBoundingClientRect();
+    const hl = document.getElementById('demoHighlight');
+    hl.innerHTML = label ? '<div class="demo-highlight-label">' + label + '</div>' : '';
+    hl.style.left = rect.left - 4 + 'px';
+    hl.style.top = rect.top - 4 + 'px';
+    hl.style.width = rect.width + 8 + 'px';
+    hl.style.height = rect.height + 8 + 'px';
+    hl.classList.add('show');
+    const nar = document.getElementById('demoNarration');
+    const narWidth = 480;
+    const narHeight = nar.offsetHeight || 100;
+    const gap = 16;
+    let x = rect.left + rect.width / 2 - narWidth / 2;
+    x = Math.max(10, Math.min(x, window.innerWidth - narWidth - 10));
+    let below = rect.bottom + gap;
+    let placeBelow = below + narHeight + 20 < window.innerHeight;
+    let y;
+    if(placeBelow){
+      y = below;
+    } else {
+      y = rect.top - narHeight - gap;
+      if(y < 20) y = 20;
+    }
+    nar.style.left = x + 'px';
+    nar.style.top = y + 'px';
+    nar.style.bottom = 'auto';
+    nar.style.right = 'auto';
+    nar.style.transform = 'none';
+  }, 700);
+}
+function clearHighlight(){
+  const hl = document.getElementById('demoHighlight');
+  hl.classList.remove('show');
+  hl.innerHTML = '';
+}
+function positionNarration(selector){
+  const nar = document.getElementById('demoNarration');
+  if(!selector){
+    nar.style.left = '50%';
+    nar.style.top = 'auto';
+    nar.style.bottom = '30px';
+    nar.style.right = 'auto';
+    nar.style.transform = 'translateX(-50%)';
+    return;
+  }
+  setTimeout(() => {
+    const el = document.querySelector(selector);
+    if(!el){
+      nar.style.left = '50%';
+      nar.style.top = 'auto';
+      nar.style.bottom = '30px';
+      nar.style.right = 'auto';
+      nar.style.transform = 'translateX(-50%)';
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    const narWidth = 480;
+    const narHeight = nar.offsetHeight || 100;
+    const gap = 16;
+    let x = rect.left + rect.width / 2 - narWidth / 2;
+    x = Math.max(10, Math.min(x, window.innerWidth - narWidth - 10));
+    let below = rect.bottom + gap;
+    let placeBelow = below + narHeight + 20 < window.innerHeight;
+    let y;
+    if(placeBelow){
+      y = below;
+    } else {
+      y = rect.top - narHeight - gap;
+      if(y < 20) y = 20;
+    }
+    nar.style.left = x + 'px';
+    nar.style.top = y + 'px';
+    nar.style.bottom = 'auto';
+    nar.style.right = 'auto';
+    nar.style.transform = 'none';
+  }, 500);
+}
+function showDemoFinal(){
+  const f = document.getElementById('demoFinal');
+  f.innerHTML = '<h2>🎯 Demo Complete</h2>' +
+    '<p>This tool runs SELECT queries across 10 vet practice databases at once, saves baselines before deploying, and compares after to verify changes landed. Data stays on the VM — pure Python, no AI.</p>' +
+    '<button class="btn btn-primary" style="width:100%;margin-bottom:16px;padding:12px;font-size:1rem" onclick="stopDemoTour()">✕ Exit Demo</button>' +
+    '<div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px">' +
+    '<p style="font-size:.82rem;color:#666;margin-bottom:8px">Share this link with your team:</p>' +
+    '<div class="link-box" id="demoLinkBox">' + APP_URL + '</div>' +
+    '<button class="copy-btn" onclick="copyDemoLink()">Copy Link</button>' +
+    '</div>';
+  f.classList.add('show');
+}
+function copyDemoLink(){
+  navigator.clipboard.writeText(APP_URL).then(() => {
+    const btn = document.querySelector('#demoFinal .copy-btn');
+    if(btn){btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = 'Copy Link', 2000)}
+  }).catch(() => {});
+}
+function stopDemoTour(){
+  if(demoTimer){clearTimeout(demoTimer); demoTimer = null}
+  demoStep = 0;
+  clearHighlight();
+  document.getElementById('demoOverlay').classList.remove('show');
+  document.getElementById('demoNarration').classList.remove('show');
+  document.getElementById('demoHighlight').classList.remove('show');
+  document.getElementById('demoFinal').classList.remove('show');
+  document.getElementById('demoClose').classList.remove('show');
+}
+</script>
+</body>
+</html>

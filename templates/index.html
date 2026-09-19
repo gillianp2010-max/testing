@@ -136,6 +136,8 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 .landing-page .btn-landing-enter:hover{background:rgba(255,255,255,.25);transform:translateY(-3px)}
 .landing-page .landing-features{display:flex;gap:12px;margin-top:40px;flex-wrap:wrap;justify-content:center}
 .landing-page .feature-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:6px 16px;font-size:.8rem;color:rgba(255,255,255,.95)}
+@keyframes flashPulse{0%,100%{opacity:1;border-color:rgba(255,255,255,.25)}50%{opacity:.5;border-color:rgba(255,255,255,.6)}}
+.sim-badge{animation:flashPulse 2s ease-in-out infinite}
 #mainApp{display:none}
 .section-box{background:linear-gradient(135deg,#f3e5f5,#faf0fb);border:1px solid #ce93d8;border-radius:10px;padding:12px 14px;margin-top:10px;box-shadow:0 2px 8px rgba(156,39,176,.08)}
 .section-box-query{background:linear-gradient(135deg,#e0f7fa,#e8f5f3);border:1px solid #80deea;border-radius:10px;padding:12px 14px;margin-top:10px;box-shadow:0 2px 8px rgba(10,126,138,.08)}
@@ -154,7 +156,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
     <button class='btn-landing-demo' onclick='enterApp(true)'>▶ Start Demo Tour</button>
     <button class='btn-landing-enter' onclick='enterApp(false)'>Enter Tool</button>
   </div>
-  <div style='margin-top:20px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;font-size:.78rem;color:rgba(255,255,255,.95)'><span style='display:inline-block;animation:spin 3s linear infinite'>⚙️</span> Simulated data &amp; practices</div>
+  <div class='sim-badge' style='margin-top:20px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;font-size:.78rem;color:rgba(255,255,255,.95)'><span style='display:inline-block;animation:spin 3s linear infinite'>⚙️</span> Demo uses simulated data and practices</div>
   <div class='landing-features'>
     <span class='feature-chip'>🔍 Independent deploy verification</span>
     <span class='feature-chip'>🔒 Read-only by design</span>
@@ -167,7 +169,7 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <div id='mainApp'>
 <div class='top-bar'>
   <h1>Vet Practice SQL Tester</h1>
-  <span style='display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:16px;padding:3px 10px;font-size:.68rem;color:rgba(255,255,255,.95);vertical-align:middle;margin-right:8px'><span style='display:inline-block;animation:spin 3s linear infinite'>⚙️</span> Simulated data</span>
+  <span class='sim-badge' style='display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:16px;padding:3px 10px;font-size:.68rem;color:rgba(255,255,255,.95);vertical-align:middle;margin-right:8px'><span style='display:inline-block;animation:spin 3s linear infinite'>⚙️</span> Demo: simulated data</span>
   <button class='demo-btn' onclick='startDemoTour()'>▶ Start Demo Tour</button>
 
   <div class='section-box-query'>

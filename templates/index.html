@@ -149,12 +149,13 @@ select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <div class='landing-page' id='landingPage'>
   <div class='landing-icon'>🐾</div>
   <h1>Vet Practice SQL Tester</h1>
-  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys, compare baselines, and keep data secure on-VM.</p>
+  <p class='landing-desc'>Run SELECT queries across single or multiple veterinary practice databases simultaneously. Verify deploys independently from a separate session, compare baselines, and keep data secure on-VM.</p>
   <div class='landing-buttons'>
     <button class='btn-landing-demo' onclick='enterApp(true)'>▶ Start Demo Tour</button>
     <button class='btn-landing-enter' onclick='enterApp(false)'>Enter Tool</button>
   </div>
   <div class='landing-features'>
+    <span class='feature-chip'>🔍 Independent deploy verification</span>
     <span class='feature-chip'>🔒 Read-only by design</span>
     <span class='feature-chip'>⚡ Concurrent queries</span>
     <span class='feature-chip'>📸 Before/after baselines</span>
@@ -749,6 +750,7 @@ const demoSteps = [
   {text:'Let me prove it is read-only. Watch what happens when I try to DELETE all patients...', delay:6000, action:'tryDelete', target:'#security-card'},
   {text:'BLOCKED. Three layers of protection: SELECT is hardcoded, forbidden keywords are filtered, and databases open in read-only mode. No data can be modified through this tool.', delay:10000, action:null, target:'#security-card'},
   {text:'Data never leaves the VM. Pure Python, no AI, no data processing agreements. Zero risk to production data.', delay:8000, action:null, target:'#security-card'},
+  {text:'The key use case: a tester verifies a deploy from a completely separate session. After a developer commits a change, the tester opens this tool from their own browser, loads the baseline, runs the same query, and compares — no access to the developer session needed.', delay:12000, action:null, target:'#saveBaselineBtn'},
   {text:'Here is the link. Hand it over and try it yourself.', delay:0, action:'showFinal', target:null}
 ];
 function startDemoTour(){

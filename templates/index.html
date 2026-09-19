@@ -1081,7 +1081,7 @@ function positionNarration(selector){
 function showDemoFinal(){
   const f = document.getElementById('demoFinal');
   f.innerHTML = '<h2>🎯 Demo Complete</h2>' +
-    '<p>This tool runs SELECT queries across 10 vet practice databases at once, saves baselines before deploying, and compares after to verify changes landed. Data stays on the VM — pure Python, designed to keep things simple.</p>' +
+    '<p>This tool allows a tester to SELECT queries across one or multiple vet practice databases at once, can save baselines before deploy, and allow comparison after deploy to verify changes landed. Data stays on the VM — pure Python, designed to keep things simple.</p>' +
     '<button class="btn btn-primary" style="width:100%;margin-bottom:16px;padding:12px;font-size:1rem" onclick="stopDemoTour()">✕ Exit Demo</button>' +
     '<div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px">' +
     '<p style="font-size:.82rem;color:#666;margin-bottom:8px">Share this link with your team:</p>' +
@@ -1105,6 +1105,10 @@ function stopDemoTour(){
   document.getElementById('demoHighlight').classList.remove('show');
   document.getElementById('demoFinal').classList.remove('show');
   document.getElementById('demoClose').classList.remove('show');
+  document.getElementById('mainApp').style.display = 'none';
+  const landing = document.getElementById('landingPage');
+  landing.style.display = 'flex';
+  landing.classList.remove('hide');
 }
 </script>
 </body>
